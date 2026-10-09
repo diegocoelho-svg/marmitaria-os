@@ -22,6 +22,7 @@ Decisões de arquitetura do marmitaria-os. Formato: [`0000-template.md`](./0000-
 | [0016](./0016-logs-estruturados-pino.md) | Logs estruturados com Pino | Proposto |
 | [0017](./0017-infraestrutura-agnostica-docker.md) | Infraestrutura agnóstica com Docker Compose | Aceito |
 | [0018](./0018-ci-cd-github-actions.md) | CI/CD com GitHub Actions e GHCR | Aceito |
+| [0019](./0019-eslint-e-prettier.md) | Lint e formatação com ESLint + Prettier | Aceito |
 
 ## Em aberto
 

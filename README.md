@@ -131,7 +131,7 @@ Uma única aplicação React responsiva (PWA), validada nos quatro alvos, nesta 
 | Testes | Vitest (unitário, integração, E2E de API), Playwright (E2E em 4 viewports) |
 | Infra | Docker, Docker Compose, Caddy |
 | CI/CD | GitHub Actions, GitHub Container Registry |
-| Monorepo | pnpm workspaces, Biome |
+| Monorepo | pnpm workspaces, ESLint, Prettier |
 
 ## Arquitetura
 
@@ -179,7 +179,7 @@ marmitaria-os/
 │   └── web/            # React SPA (PWA)
 ├── packages/
 │   ├── contracts/      # schemas Zod compartilhados entre front e back
-│   └── config/         # tsconfig e Biome compartilhados
+│   └── config/         # tsconfig compartilhado
 ├── docs/
 │   └── adr/            # Architecture Decision Records
 ├── docker-compose.yml
