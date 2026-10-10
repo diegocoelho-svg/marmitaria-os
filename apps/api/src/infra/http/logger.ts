@@ -1,13 +1,19 @@
 import type { FastifyServerOptions } from 'fastify'
-import type { Env } from '../../main/env'
 
-export function buildLoggerOptions(env: Env): NonNullable<FastifyServerOptions['logger']> {
-  if (env.NODE_ENV === 'test') return false
+export type LoggerConfig = {
+  environment: 'development' | 'test' | 'production'
+  level: string
+}
+
+export function buildLoggerOptions(
+  config: LoggerConfig,
+): NonNullable<FastifyServerOptions['logger']> {
+  if (config.environment === 'test') return false
 
   return {
-    level: env.LOG_LEVEL,
+    level: config.level,
     redact: ['req.headers.authorization', 'req.headers.cookie'],
-    ...(env.NODE_ENV === 'development' && {
+    ...(config.environment === 'development' && {
       transport: { target: 'pino-pretty', options: { translateTime: 'SYS:HH:MM:ss' } },
     }),
   }

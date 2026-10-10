@@ -88,12 +88,12 @@ sequenceDiagram
     participant DB as PostgreSQL
     actor C as Cozinha (tablet/TV)
 
-    C->>API: GET /events (SSE, conexão aberta)
-    A->>API: POST /orders (prato, tamanho, ajustes)
+    C->>API: GET /api/events (SSE, conexão aberta)
+    A->>API: POST /api/orders (prato, tamanho, ajustes)
     API->>DB: salva pedido + preço congelado
     API-->>A: 201 Created (senha 042)
     API-)C: event: order.created
-    C->>API: PATCH /orders/42/status (preparing → ready)
+    C->>API: PATCH /api/orders/42/status (preparing → ready)
     API-)A: event: order.ready
 ```
 
@@ -183,25 +183,27 @@ marmitaria-os/
 ├── docs/
 │   └── adr/            # Architecture Decision Records
 ├── docker-compose.yml
+├── Caddyfile           # reverse proxy + HTTPS
 └── .github/workflows/  # CI/CD
 ```
 
 ## Qualidade e entrega
 
-O CI atual executa lint, formatação, typecheck, testes existentes e build dos apps.
-Postgres no CI, Playwright, imagens Docker e CD fazem parte da estratégia planejada abaixo.
+O CI atual executa lint, formatação, typecheck, testes existentes e build dos apps, além de
+subir a stack do Docker Compose com um smoke test em `/api/health`. Testes de integração com
+Postgres, Playwright, publicação das imagens e CD fazem parte da estratégia planejada abaixo.
 
 - **Testes:** muitos unitários no domínio, integração contra um Postgres real e poucos E2E
   críticos. Os E2E de interface rodam em desktop, mobile, tablet e TV.
 - **CI em todo PR:** lint → typecheck → unitários → integração → E2E → build das imagens.
 - **CD no merge:** imagens publicadas no GHCR, deploy em staging e, com aprovação manual,
   em produção, seguido de smoke test e rollback automático.
-- **Observabilidade:** logs estruturados em JSON com correlação por requisição e endpoint `/health`.
+- **Observabilidade:** logs estruturados em JSON com correlação por requisição e endpoint `/api/health`.
 
 ## Roadmap
 
 - [x] Concepção do produto e decisões de arquitetura (ADRs)
-- [ ] Esqueleto do monorepo, Docker Compose e CI
+- [x] Esqueleto do monorepo, Docker Compose e CI
 - [ ] Domínio: pedido, cardápio e preços (com testes)
 - [ ] API REST + SSE
 - [ ] Telas de balcão e cozinha
@@ -229,10 +231,22 @@ Se necessário, instale o pnpm com `npm install --global pnpm@11.24.0`.
 ```bash
 pnpm install
 cp apps/api/.env.example apps/api/.env
+docker compose up -d postgres
 pnpm dev
 ```
 
-A API sobe em `http://localhost:3333` e o web em `http://localhost:5173`.
+A API sobe em `http://localhost:3333` e o web em `http://localhost:5173`, que repassa
+`/api` para a API.
+
+Para subir a stack completa como em produção (Caddy, web, API e Postgres):
+
+```bash
+cp .env.example .env
+docker compose up -d --build
+```
+
+Tudo fica disponível em `http://localhost`. Com um domínio em `SITE_ADDRESS`, o Caddy emite o
+certificado HTTPS automaticamente.
 
 | Comando | O que faz |
 |---|---|
