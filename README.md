@@ -3,7 +3,7 @@
 > Sistema de fila de pedidos para marmitaria: o atendente registra o pedido no balcão e a
 > cozinha recebe na hora, em ordem de chegada. Sem papel, sem grito, sem pedido perdido.
 
-![status](https://img.shields.io/badge/status-concep%C3%A7%C3%A3o-blue)
+![status](https://img.shields.io/badge/status-em%20desenvolvimento-yellow)
 ![typescript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![node](https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white)
 ![react](https://img.shields.io/badge/React-20232A?logo=react&logoColor=61DAFB)
@@ -188,6 +188,9 @@ marmitaria-os/
 
 ## Qualidade e entrega
 
+O CI atual executa lint, formatação, typecheck, testes existentes e build dos apps.
+Postgres no CI, Playwright, imagens Docker e CD fazem parte da estratégia planejada abaixo.
+
 - **Testes:** muitos unitários no domínio, integração contra um Postgres real e poucos E2E
   críticos. Os E2E de interface rodam em desktop, mobile, tablet e TV.
 - **CI em todo PR:** lint → typecheck → unitários → integração → E2E → build das imagens.
@@ -220,5 +223,21 @@ alternativas consideradas e consequências. Alguns destaques:
 
 ## Como rodar
 
-> 🚧 O projeto está em fase de concepção. As instruções de execução serão adicionadas junto
-> com o esqueleto do monorepo.
+Pré-requisitos: Node.js 24 LTS (usado no CI) e pnpm 11.24.0.
+Se necessário, instale o pnpm com `npm install --global pnpm@11.24.0`.
+
+```bash
+pnpm install
+cp apps/api/.env.example apps/api/.env
+pnpm dev
+```
+
+A API sobe em `http://localhost:3333` e o web em `http://localhost:5173`.
+
+| Comando | O que faz |
+|---|---|
+| `pnpm lint` | ESLint em todo o monorepo |
+| `pnpm format:check` | Verifica a formatação com Prettier |
+| `pnpm typecheck` | Typecheck de todos os pacotes |
+| `pnpm test` | Testes de todos os pacotes |
+| `pnpm build` | Build de todos os pacotes |
