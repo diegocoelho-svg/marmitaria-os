@@ -37,3 +37,26 @@ jobs:
       - run: pnpm test
 
       - run: pnpm build
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - run: docker compose build
+
+      - run: docker compose up --detach --wait
+
+      - name: Smoke test
+        shell: bash
+        run: |
+          curl -fsS --retry 10 --retry-connrefused --max-time 10 http://localhost/api/health | jq -e '.status == "ok"'
+          curl -fsS --retry 10 --retry-connrefused --max-time 10 http://localhost/ | grep '<div id="root"></div>' > /dev/null
+          test "$(curl -s --max-time 10 -o /dev/null -w '%{http_code}' http://localhost/assets/missing.js)" = 404
+
+      - if: failure()
+        run: docker compose logs
+
+      - if: always()
+        run: docker compose down --volumes
