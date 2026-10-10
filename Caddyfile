@@ -1,0 +1,9 @@
+{$SITE_ADDRESS} {
+	handle /api/* {
+		reverse_proxy api:3333
+	}
+
+	handle {
+		reverse_proxy web:80
+	}
+}
