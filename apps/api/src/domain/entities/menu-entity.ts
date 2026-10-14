@@ -1,15 +1,15 @@
 import { MenuArchivedError } from '../errors/menu-archived.error'
 import { MenuInvalidNameError } from '../errors/menu-invalid-name.error'
-import { dishSelection } from '../shared/dish-selection'
 import { Entity } from '../shared/entity'
 import { copyInstant } from '../shared/instant'
 import { requiredText } from '../shared/text'
+import { DishSelectionVO } from '../value-objects/dish-selection-vo'
 
 const NAME_MAX_LENGTH = 60
 
 export type MenuEntityProps = {
   name: string
-  dishIds: string[]
+  dishes: DishSelectionVO
   archivedAt: Date | null
 }
 
@@ -32,7 +32,7 @@ export class MenuEntity extends Entity<MenuEntityProps> {
   ) {
     super(id, {
       name: requiredText(name, NAME_MAX_LENGTH, MenuInvalidNameError),
-      dishIds: dishSelection(dishIds),
+      dishes: DishSelectionVO.of(dishIds),
       archivedAt: archivedAt === null ? null : copyInstant(archivedAt),
     })
   }
@@ -53,8 +53,12 @@ export class MenuEntity extends Entity<MenuEntityProps> {
     return this.props.name.normalize('NFC').toLowerCase()
   }
 
+  get dishes(): DishSelectionVO {
+    return this.props.dishes
+  }
+
   get dishIds(): readonly string[] {
-    return [...this.props.dishIds]
+    return this.props.dishes.dishIds
   }
 
   get archivedAt(): Date | null {
@@ -72,7 +76,7 @@ export class MenuEntity extends Entity<MenuEntityProps> {
 
   setDishes(dishIds: readonly string[]): void {
     this.assertActive()
-    this.props.dishIds = dishSelection(dishIds)
+    this.props.dishes = DishSelectionVO.of(dishIds)
   }
 
   archive(now: Date): void {
