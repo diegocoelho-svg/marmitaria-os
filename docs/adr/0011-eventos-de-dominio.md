@@ -1,6 +1,6 @@
 # 0011 — Eventos de domínio: event bus em memória, evoluindo para outbox + pg-boss
 
-- **Status:** Proposto
+- **Status:** Aceito
 - **Data:** 2026-10-06
 
 ## Contexto
@@ -14,7 +14,11 @@ mas no MVP não há nenhum consumidor fora do processo da API.
 1. **MVP:** porta `EventBus` na camada de aplicação, com implementação **em memória**
    (tipada e assíncrona, ex.: `emittery` ou um dispatcher próprio). Os agregados registram
    eventos (`OrderCreated`, `OrderStarted`, `OrderReady`, `OrderDelivered`, `OrderCancelled`,
-   `DailyMenuPublished`), que são publicados **após o commit** da transação.
+   `DailyMenuPublished`, `DailyMenuUpdated`), que são publicados **após o commit** da
+   transação.
+   - Cada evento é tipado por um discriminante `type` (ex.: `order.ready`) e carrega
+     `aggregateId`, `occurredAt` e um snapshot dos dados relevantes.
+   - Os agregados só acumulam eventos (`pullEvents()`); quem publica é a application.
 2. **Quando houver trabalho assíncrono que não pode se perder** (fase 3, WhatsApp):
    - **Transactional Outbox:** o evento é gravado numa tabela `outbox` na mesma transação
      do pedido;

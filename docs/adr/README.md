@@ -14,16 +14,18 @@ Decisões de arquitetura do marmitaria-os. Formato: [`0000-template.md`](./0000-
 | [0008](./0008-tanstack-router-e-query.md) | TanStack Router e TanStack Query | Aceito |
 | [0009](./0009-zod-contratos-compartilhados.md) | Zod e contratos compartilhados | Aceito |
 | [0010](./0010-tempo-real-com-sse.md) | Tempo real com SSE | Aceito |
-| [0011](./0011-eventos-de-dominio.md) | Eventos de domínio: em memória → outbox + pg-boss | Proposto |
+| [0011](./0011-eventos-de-dominio.md) | Eventos de domínio: em memória → outbox + pg-boss | Aceito |
 | [0012](./0012-modelo-de-preco.md) | Preço por tamanho, com vigência e snapshot | Aceito |
-| [0013](./0013-cardapio-do-dia.md) | Cardápio do dia com planejamento antecipado | Aceito |
-| [0014](./0014-ajustes-e-observacoes.md) | Ajustes rápidos + observação livre | Proposto |
+| [0013](./0013-cardapio-do-dia.md) | Cardápio do dia com planejamento antecipado | Substituído por 0021 |
+| [0014](./0014-ajustes-e-observacoes.md) | Ajustes rápidos + observação livre | Aceito |
 | [0015](./0015-testes.md) | Testes com Vitest e Playwright | Aceito |
 | [0016](./0016-logs-estruturados-pino.md) | Logs estruturados com Pino | Proposto |
 | [0017](./0017-infraestrutura-agnostica-docker.md) | Infraestrutura agnóstica com Docker Compose | Aceito |
 | [0018](./0018-ci-cd-github-actions.md) | CI/CD com GitHub Actions e GHCR | Aceito |
 | [0019](./0019-eslint-e-prettier.md) | Lint e formatação com ESLint + Prettier | Aceito |
 | [0020](./0020-rotas-da-api-sob-prefixo-api.md) | Rotas da API sob o prefixo `/api` | Aceito |
+| [0021](./0021-cardapios-cadastraveis.md) | Cardápios cadastráveis, copiados para o cardápio do dia | Aceito |
+| [0022](./0022-regras-do-modelo-de-dominio.md) | Regras do modelo de domínio | Aceito |
 
 ## Em aberto
 

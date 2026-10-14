@@ -1,6 +1,6 @@
 # 0014 — Ajustes rápidos + observação livre nos itens do pedido
 
-- **Status:** Proposto
+- **Status:** Aceito
 - **Data:** 2026-10-06
 
 ## Contexto
@@ -17,8 +17,9 @@ Cada item do pedido terá:
   "Sem feijão"), exibidas como botões de liga/desliga. Um toque cada.
 - **Observação livre** opcional, para o que fugir do padrão.
 
-Os ajustes são gravados como snapshot no item (como o preço, ver 0012) e aparecem em
-destaque no ticket da cozinha.
+Os ajustes são gravados como snapshot no item (como o preço, ver 0012), com o id do ajuste e
+o rótulo daquele momento (`{ adjustmentId, label }`), e aparecem em destaque no ticket da
+cozinha. O id mantém as estatísticas corretas mesmo que o rótulo seja renomeado.
 
 ## Alternativas consideradas
 
