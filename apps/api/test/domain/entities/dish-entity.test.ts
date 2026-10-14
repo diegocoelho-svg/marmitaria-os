@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { Dish } from '../../../src/domain/entities/dish'
+import { DishInvalidNameError } from '../../../src/domain/errors/dish-invalid-name.error'
+import { DishEntity } from '../../../src/domain/entities/dish-entity'
 
-describe('Dish', () => {
+describe('DishEntity', () => {
   it('is created active with a trimmed name', () => {
-    const dish = Dish.create({ id: 'dish-1', name: '  Frango grelhado  ', description: ' ' })
+    const dish = DishEntity.create({ id: 'dish-1', name: '  Frango grelhado  ', description: ' ' })
 
     expect(dish.name).toBe('Frango grelhado')
     expect(dish.description).toBeUndefined()
@@ -11,13 +12,11 @@ describe('Dish', () => {
   })
 
   it.each(['', '   ', 'x'.repeat(81)])('rejects the name %j', (name) => {
-    expect(() => Dish.create({ id: 'dish-1', name })).toThrow(
-      expect.objectContaining({ code: 'dish.invalid_name' }),
-    )
+    expect(() => DishEntity.create({ id: 'dish-1', name })).toThrow(DishInvalidNameError)
   })
 
   it('renames, describes and toggles availability', () => {
-    const dish = Dish.create({ id: 'dish-1', name: 'Lasanha' })
+    const dish = DishEntity.create({ id: 'dish-1', name: 'Lasanha' })
 
     dish.rename('Lasanha de carne')
     dish.describe('Molho bolonhesa')
@@ -32,7 +31,7 @@ describe('Dish', () => {
   })
 
   it('restores an inactive dish', () => {
-    const dish = Dish.restore({ id: 'dish-1', name: 'Feijoada', active: false })
+    const dish = DishEntity.restore({ id: 'dish-1', name: 'Feijoada', active: false })
 
     expect(dish.active).toBe(false)
   })

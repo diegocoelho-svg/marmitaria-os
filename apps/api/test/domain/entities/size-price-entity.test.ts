@@ -1,15 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { SizePrice } from '../../../src/domain/entities/size-price'
+import { SizeInvalidError } from '../../../src/domain/errors/size-invalid.error'
+import { SizePriceAlreadyClosedError } from '../../../src/domain/errors/size-price-already-closed.error'
+import { SizePriceInvalidPeriodError } from '../../../src/domain/errors/size-price-invalid-period.error'
+import { SizePriceZeroPriceError } from '../../../src/domain/errors/size-price-zero-price.error'
+import { SizePriceEntity } from '../../../src/domain/entities/size-price-entity'
 import type { Size } from '../../../src/domain/value-objects/size'
-import { Money } from '../../../src/domain/value-objects/money'
+import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
 
 const validFrom = new Date('2026-10-01T12:00:00Z')
 
 function largePrice() {
-  return SizePrice.create({ id: 'price-1', size: 'large', price: Money.fromCents(2000), validFrom })
+  return SizePriceEntity.create({
+    id: 'price-1',
+    size: 'large',
+    price: MoneyVO.fromCents(2000),
+    validFrom,
+  })
 }
 
-describe('SizePrice', () => {
+describe('SizePriceEntity', () => {
   it('starts open', () => {
     const price = largePrice()
 
@@ -19,20 +28,20 @@ describe('SizePrice', () => {
 
   it('rejects a zero price', () => {
     expect(() =>
-      SizePrice.create({ id: 'price-1', size: 'large', price: Money.zero(), validFrom }),
-    ).toThrow(expect.objectContaining({ code: 'size_price.zero_price' }))
+      SizePriceEntity.create({ id: 'price-1', size: 'large', price: MoneyVO.zero(), validFrom }),
+    ).toThrow(SizePriceZeroPriceError)
   })
 
   it('rejects an unknown size', () => {
     expect(() =>
-      SizePrice.restore({
+      SizePriceEntity.restore({
         id: 'price-1',
         size: 'huge' as Size,
-        price: Money.fromCents(2000),
+        price: MoneyVO.fromCents(2000),
         validFrom,
         validTo: null,
       }),
-    ).toThrow(expect.objectContaining({ code: 'size.invalid' }))
+    ).toThrow(SizeInvalidError)
   })
 
   it('is valid from its start until it is closed, exclusive', () => {
@@ -48,26 +57,22 @@ describe('SizePrice', () => {
   })
 
   it('cannot close at or before its start', () => {
-    expect(() => largePrice().close(validFrom)).toThrow(
-      expect.objectContaining({ code: 'size_price.invalid_period' }),
-    )
+    expect(() => largePrice().close(validFrom)).toThrow(SizePriceInvalidPeriodError)
   })
 
   it('cannot close twice', () => {
     const price = largePrice()
     price.close(new Date('2026-10-10T12:00:00Z'))
 
-    expect(() => price.close(new Date('2026-10-11T12:00:00Z'))).toThrow(
-      expect.objectContaining({ code: 'size_price.already_closed' }),
-    )
+    expect(() => price.close(new Date('2026-10-11T12:00:00Z'))).toThrow(SizePriceAlreadyClosedError)
   })
 
   it('does not expose its dates for mutation', () => {
     const start = new Date(validFrom)
-    const price = SizePrice.create({
+    const price = SizePriceEntity.create({
       id: 'price-1',
       size: 'large',
-      price: Money.fromCents(2000),
+      price: MoneyVO.fromCents(2000),
       validFrom: start,
     })
 

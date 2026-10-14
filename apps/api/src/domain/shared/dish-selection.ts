@@ -1,12 +1,13 @@
-import { DomainError } from '../errors/domain-error'
+import { MenuDuplicateDishError } from '../errors/menu-duplicate-dish.error'
+import { MenuEmptyError } from '../errors/menu-empty.error'
 
 export function dishSelection(dishIds: readonly string[]): string[] {
   if (dishIds.length === 0) {
-    throw new DomainError('menu.empty', 'A menu needs at least one dish')
+    throw new MenuEmptyError()
   }
 
   if (new Set(dishIds).size !== dishIds.length) {
-    throw new DomainError('menu.duplicate_dish', 'A menu cannot repeat a dish')
+    throw new MenuDuplicateDishError()
   }
 
   return [...dishIds]

@@ -1,24 +1,26 @@
 import { describe, expect, it } from 'vitest'
-import { DailyMenu } from '../../../src/domain/entities/daily-menu'
-import { Menu } from '../../../src/domain/entities/menu'
-import { LocalDate } from '../../../src/domain/value-objects/local-date'
+import { DailyMenuPastDateError } from '../../../src/domain/errors/daily-menu-past-date.error'
+import { MenuArchivedError } from '../../../src/domain/errors/menu-archived.error'
+import { DailyMenuEntity } from '../../../src/domain/entities/daily-menu-entity'
+import { MenuEntity } from '../../../src/domain/entities/menu-entity'
+import { LocalDateVO } from '../../../src/domain/value-objects/local-date-vo'
 
 const now = new Date('2026-10-10T12:00:00Z')
-const today = LocalDate.parse('2026-10-10')
+const today = LocalDateVO.parse('2026-10-10')
 
 function menu(id: string, dishIds: string[]) {
-  return Menu.create({ id, name: id, dishIds })
+  return MenuEntity.create({ id, name: id, dishIds })
 }
 
-function todayFrom(source: Menu) {
-  const dailyMenu = DailyMenu.fromMenu({ id: 'day-1', date: today, menu: source, now })
+function todayFrom(source: MenuEntity) {
+  const dailyMenu = DailyMenuEntity.fromMenu({ id: 'day-1', date: today, menu: source, now })
   dailyMenu.pullEvents()
   return dailyMenu
 }
 
-describe('DailyMenu', () => {
+describe('DailyMenuEntity', () => {
   it('copies the dishes of the chosen menu and publishes the day', () => {
-    const dailyMenu = DailyMenu.fromMenu({
+    const dailyMenu = DailyMenuEntity.fromMenu({
       id: 'day-1',
       date: today,
       menu: menu('menu-d', ['frango', 'lasanha']),
@@ -44,11 +46,21 @@ describe('DailyMenu', () => {
     const source = menu('menu-d', ['frango'])
 
     expect(() =>
-      DailyMenu.fromMenu({ id: 'day-1', date: LocalDate.parse('2026-10-17'), menu: source, now }),
+      DailyMenuEntity.fromMenu({
+        id: 'day-1',
+        date: LocalDateVO.parse('2026-10-17'),
+        menu: source,
+        now,
+      }),
     ).not.toThrow()
     expect(() =>
-      DailyMenu.fromMenu({ id: 'day-1', date: LocalDate.parse('2026-10-09'), menu: source, now }),
-    ).toThrow(expect.objectContaining({ code: 'daily_menu.past_date' }))
+      DailyMenuEntity.fromMenu({
+        id: 'day-1',
+        date: LocalDateVO.parse('2026-10-09'),
+        menu: source,
+        now,
+      }),
+    ).toThrow(DailyMenuPastDateError)
   })
 
   it('rejects an archived menu without changing the day', () => {
@@ -56,9 +68,7 @@ describe('DailyMenu', () => {
     const archived = menu('menu-a', ['bife'])
     archived.archive(now)
 
-    expect(() => dailyMenu.applyMenu(archived, now)).toThrow(
-      expect.objectContaining({ code: 'menu.archived' }),
-    )
+    expect(() => dailyMenu.applyMenu(archived, now)).toThrow(MenuArchivedError)
     expect(dailyMenu.sourceMenuId).toBe('menu-d')
     expect(dailyMenu.pullEvents()).toEqual([])
   })
@@ -117,7 +127,7 @@ describe('DailyMenu', () => {
   })
 
   it('keeps recorded events unchanged by later changes', () => {
-    const dailyMenu = DailyMenu.fromMenu({
+    const dailyMenu = DailyMenuEntity.fromMenu({
       id: 'day-1',
       date: today,
       menu: menu('menu-d', ['frango']),
@@ -130,16 +140,14 @@ describe('DailyMenu', () => {
   })
 
   it('restores a past day without its source and rejects changes to it', () => {
-    const dailyMenu = DailyMenu.restore({
+    const dailyMenu = DailyMenuEntity.restore({
       id: 'day-0',
-      date: LocalDate.parse('2026-10-06'),
+      date: LocalDateVO.parse('2026-10-06'),
       sourceMenuId: 'archived-menu',
       dishIds: ['frango'],
     })
 
     expect(dailyMenu.pullEvents()).toEqual([])
-    expect(() => dailyMenu.setDishes(['bife'], now)).toThrow(
-      expect.objectContaining({ code: 'daily_menu.past_date' }),
-    )
+    expect(() => dailyMenu.setDishes(['bife'], now)).toThrow(DailyMenuPastDateError)
   })
 })

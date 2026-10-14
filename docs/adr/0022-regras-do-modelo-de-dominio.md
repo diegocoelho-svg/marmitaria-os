@@ -13,22 +13,27 @@ de uso e adaptadores que vêm depois.
 
 **Organização.** `apps/api/src/domain` é organizado por tipo: `entities/`, `value-objects/`,
 `events/`, `errors/` e `shared/`. Nenhum arquivo do domínio importa application, infra, main
-ou bibliotecas externas.
+ou bibliotecas externas. Classes e arquivos levam o tipo no nome: `OrderEntity`
+(`order-entity.ts`), `MoneyVO` (`money-vo.ts`), `OrderEmptyError` (`order-empty.error.ts`).
 
-**Construção.** Entidades têm construtor privado e duas fábricas:
+**Construção.** Entidades estendem `Entity<Props>` (ou `AggregateRoot<Props, Event>`, quando
+registram eventos), guardam o estado em `props` protegido e o expõem por getters. Têm
+construtor privado e duas fábricas:
 
 - `create` aplica as regras da operação (ex.: data não pode ser passada) e registra eventos;
 - `restore` reconstrói o estado persistido, valida apenas sua coerência e nunca registra
   eventos.
 
 **Tempo e identidade.** O domínio nunca lê o relógio nem gera ids: `now` e `id` chegam por
-parâmetro. Datas de negócio são `LocalDate` derivadas de `now` no fuso `America/Sao_Paulo`.
+parâmetro. Datas de negócio são `LocalDateVO` derivadas de `now` no fuso `America/Sao_Paulo`.
 
-**Erros.** Violações de regra lançam `DomainError` com um `code` estável
-(ex.: `order.invalid_transition`), sem conhecimento de HTTP. A infra traduz o código.
+**Erros.** Cada regra tem sua classe de erro, um arquivo por erro, estendendo `DomainError`
+com um `code` estável (ex.: `OrderInvalidTransitionError`, `order.invalid_transition`), sem
+conhecimento de HTTP. A infra traduz o código.
 
 **Imutabilidade.** Value objects são congelados na construção. Coleções e datas são copiadas
-na entrada e na saída; o estado só muda pelos métodos das entidades. Operações inválidas não
+na entrada e na saída; o estado só muda pelos métodos das entidades. A proteção de `props` é a
+do TypeScript (`protected`), sem casts no código de produção. Operações inválidas não
 alteram estado nem registram eventos.
 
 **Pedido.**
@@ -43,13 +48,17 @@ alteram estado nem registram eventos.
   observação. O total do pedido é a soma dos itens; cancelados ficam fora do faturamento, mas
   mantêm seu total.
 
-**Dinheiro e preço.** `Money` aceita apenas inteiros seguros em centavos, inclusive no
+**Dinheiro e preço.** `MoneyVO` aceita apenas inteiros seguros em centavos, inclusive no
 resultado das operações. Preço por tamanho e preço de item são sempre maiores que zero.
 
 ## Alternativas consideradas
 
 - **Organização por agregado** (`order/`, `menu/`…) — mais coesa por assunto, mas esconde a
   distinção entre entidade e value object.
+- **Campos privados nativos (`#campo`)** — protegem também em runtime, mas espalham um campo
+  por atributo e fogem do padrão `Entity<Props>` usado nos outros projetos.
+- **Um único `DomainError` diferenciado por `code`** — menos arquivos, mas o tipo do erro não
+  aparece no código nem nos testes.
 - **`Result<T, E>` em vez de exceções** — falhas explícitas no tipo, com cerimônia de
   propagação em toda operação.
 - **Um único `advance()` para o status** — mais curto, mas esconde a intenção e representa mal

@@ -1,7 +1,12 @@
-import { assertSize, type Size } from './size'
-import { DomainError } from '../errors/domain-error'
-import type { Money } from './money'
+import { OrderItemDuplicateAdjustmentError } from '../errors/order-item-duplicate-adjustment.error'
+import { OrderItemInvalidAdjustmentError } from '../errors/order-item-invalid-adjustment.error'
+import { OrderItemInvalidDishNameError } from '../errors/order-item-invalid-dish-name.error'
+import { OrderItemInvalidNoteError } from '../errors/order-item-invalid-note.error'
+import { OrderItemInvalidQuantityError } from '../errors/order-item-invalid-quantity.error'
+import { OrderItemZeroPriceError } from '../errors/order-item-zero-price.error'
 import { optionalText, requiredText } from '../shared/text'
+import type { MoneyVO } from './money-vo'
+import { assertSize, type Size } from './size'
 
 const DISH_NAME_MAX_LENGTH = 80
 const ADJUSTMENT_LABEL_MAX_LENGTH = 60
@@ -12,59 +17,57 @@ export type AdjustmentSnapshot = Readonly<{
   label: string
 }>
 
-type OrderItemInput = {
+export type OrderItemInput = {
   dishId: string
   dishName: string
   size: Size
-  unitPrice: Money
+  unitPrice: MoneyVO
   quantity: number
   adjustments?: readonly AdjustmentSnapshot[] | undefined
   note?: string | undefined
 }
 
-export class OrderItem {
-  readonly #adjustments: readonly AdjustmentSnapshot[]
-
+export class OrderItemVO {
   private constructor(
     readonly dishId: string,
     readonly dishName: string,
     readonly size: Size,
-    readonly unitPrice: Money,
+    readonly unitPrice: MoneyVO,
     readonly quantity: number,
-    adjustments: readonly AdjustmentSnapshot[],
+    private readonly adjustmentSnapshots: readonly AdjustmentSnapshot[],
     readonly note: string | undefined,
   ) {
-    this.#adjustments = adjustments
+    Object.freeze(this.adjustmentSnapshots)
     Object.freeze(this)
   }
 
-  static create(input: OrderItemInput): OrderItem {
+  static create(input: OrderItemInput): OrderItemVO {
     if (input.unitPrice.isZero()) {
-      throw new DomainError('order_item.zero_price', 'Item price must be greater than zero')
+      throw new OrderItemZeroPriceError()
     }
 
     if (!Number.isSafeInteger(input.quantity) || input.quantity < 1) {
-      throw new DomainError('order_item.invalid_quantity', `Invalid quantity: ${input.quantity}`)
+      throw new OrderItemInvalidQuantityError(input.quantity)
     }
 
     input.unitPrice.multiply(input.quantity)
 
-    return new OrderItem(
+    return new OrderItemVO(
       input.dishId,
-      requiredText(input.dishName, DISH_NAME_MAX_LENGTH, 'order_item.invalid_dish_name'),
+      requiredText(input.dishName, DISH_NAME_MAX_LENGTH, OrderItemInvalidDishNameError),
       assertSize(input.size),
       input.unitPrice,
       input.quantity,
       adjustmentSnapshots(input.adjustments ?? []),
-      optionalText(input.note, NOTE_MAX_LENGTH, 'order_item.invalid_note'),
+      optionalText(input.note, NOTE_MAX_LENGTH, OrderItemInvalidNoteError),
     )
   }
 
   get adjustments(): readonly AdjustmentSnapshot[] {
-    return [...this.#adjustments]
+    return [...this.adjustmentSnapshots]
   }
 
-  subtotal(): Money {
+  subtotal(): MoneyVO {
     return this.unitPrice.multiply(this.quantity)
   }
 }
@@ -73,7 +76,7 @@ function adjustmentSnapshots(adjustments: readonly AdjustmentSnapshot[]): Adjust
   const ids = new Set(adjustments.map((adjustment) => adjustment.adjustmentId))
 
   if (ids.size !== adjustments.length) {
-    throw new DomainError('order_item.duplicate_adjustment', 'An item cannot repeat an adjustment')
+    throw new OrderItemDuplicateAdjustmentError()
   }
 
   return adjustments.map((adjustment) =>
@@ -82,7 +85,7 @@ function adjustmentSnapshots(adjustments: readonly AdjustmentSnapshot[]): Adjust
       label: requiredText(
         adjustment.label,
         ADJUSTMENT_LABEL_MAX_LENGTH,
-        'order_item.invalid_adjustment',
+        OrderItemInvalidAdjustmentError,
       ),
     }),
   )

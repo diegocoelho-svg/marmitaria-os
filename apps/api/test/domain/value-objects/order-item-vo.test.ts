@@ -1,44 +1,47 @@
 import { describe, expect, it } from 'vitest'
-import { Money } from '../../../src/domain/value-objects/money'
-import { OrderItem } from '../../../src/domain/value-objects/order-item'
+import { MoneyInvalidAmountError } from '../../../src/domain/errors/money-invalid-amount.error'
+import { OrderItemDuplicateAdjustmentError } from '../../../src/domain/errors/order-item-duplicate-adjustment.error'
+import { OrderItemInvalidNoteError } from '../../../src/domain/errors/order-item-invalid-note.error'
+import { OrderItemInvalidQuantityError } from '../../../src/domain/errors/order-item-invalid-quantity.error'
+import { OrderItemZeroPriceError } from '../../../src/domain/errors/order-item-zero-price.error'
+import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
+import { OrderItemVO } from '../../../src/domain/value-objects/order-item-vo'
 
 const base = {
   dishId: 'frango',
   dishName: 'Frango grelhado',
   size: 'large',
-  unitPrice: Money.fromCents(2200),
+  unitPrice: MoneyVO.fromCents(2200),
   quantity: 1,
 } as const
 
-describe('OrderItem', () => {
+describe('OrderItemVO', () => {
   it('computes the subtotal from the frozen unit price', () => {
-    expect(OrderItem.create({ ...base, quantity: 3 }).subtotal().cents).toBe(6600)
+    expect(OrderItemVO.create({ ...base, quantity: 3 }).subtotal().cents).toBe(6600)
   })
 
   it.each([0, -1, 1.5])('rejects quantity %s', (quantity) => {
-    expect(() => OrderItem.create({ ...base, quantity })).toThrow(
-      expect.objectContaining({ code: 'order_item.invalid_quantity' }),
-    )
+    expect(() => OrderItemVO.create({ ...base, quantity })).toThrow(OrderItemInvalidQuantityError)
   })
 
   it('rejects a subtotal beyond the safe integer range', () => {
     expect(() =>
-      OrderItem.create({
+      OrderItemVO.create({
         ...base,
-        unitPrice: Money.fromCents(2),
+        unitPrice: MoneyVO.fromCents(2),
         quantity: Number.MAX_SAFE_INTEGER,
       }),
-    ).toThrow(expect.objectContaining({ code: 'money.invalid_amount' }))
+    ).toThrow(MoneyInvalidAmountError)
   })
 
   it('rejects a zero price', () => {
-    expect(() => OrderItem.create({ ...base, unitPrice: Money.zero() })).toThrow(
-      expect.objectContaining({ code: 'order_item.zero_price' }),
+    expect(() => OrderItemVO.create({ ...base, unitPrice: MoneyVO.zero() })).toThrow(
+      OrderItemZeroPriceError,
     )
   })
 
   it('normalizes the note and adjustment labels', () => {
-    const item = OrderItem.create({
+    const item = OrderItemVO.create({
       ...base,
       adjustments: [{ adjustmentId: 'sem-farofa', label: '  Sem farofa ' }],
       note: '   ',
@@ -50,25 +53,25 @@ describe('OrderItem', () => {
 
   it('rejects a repeated adjustment', () => {
     expect(() =>
-      OrderItem.create({
+      OrderItemVO.create({
         ...base,
         adjustments: [
           { adjustmentId: 'sem-farofa', label: 'Sem farofa' },
           { adjustmentId: 'sem-farofa', label: 'Sem farofa' },
         ],
       }),
-    ).toThrow(expect.objectContaining({ code: 'order_item.duplicate_adjustment' }))
+    ).toThrow(OrderItemDuplicateAdjustmentError)
   })
 
   it('rejects a note longer than 200 characters', () => {
-    expect(() => OrderItem.create({ ...base, note: 'x'.repeat(201) })).toThrow(
-      expect.objectContaining({ code: 'order_item.invalid_note' }),
+    expect(() => OrderItemVO.create({ ...base, note: 'x'.repeat(201) })).toThrow(
+      OrderItemInvalidNoteError,
     )
   })
 
   it('keeps its adjustments isolated from callers', () => {
     const adjustments = [{ adjustmentId: 'sem-farofa', label: 'Sem farofa' }]
-    const item = OrderItem.create({ ...base, adjustments })
+    const item = OrderItemVO.create({ ...base, adjustments })
 
     adjustments.push({ adjustmentId: 'sem-feijao', label: 'Sem feijão' })
     ;(item.adjustments as unknown[]).pop()
@@ -78,6 +81,6 @@ describe('OrderItem', () => {
   })
 
   it('is immutable', () => {
-    expect(Object.isFrozen(OrderItem.create(base))).toBe(true)
+    expect(Object.isFrozen(OrderItemVO.create(base))).toBe(true)
   })
 })

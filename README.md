@@ -154,9 +154,9 @@ flowchart LR
     INFRA --> PG[(PostgreSQL)]
 ```
 
-- **domain** — entidades (`Order` com máquina de estados, `Menu`, `DailyMenu`, `Dish`,
-  `SizePrice`), value objects (`Money`, `LocalDate`, `OrderItem`…), eventos e erros, sem
-  nenhuma dependência externa.
+- **domain** — entidades (`OrderEntity` com máquina de estados, `MenuEntity`,
+  `DailyMenuEntity`, `DishEntity`, `SizePriceEntity`), value objects (`MoneyVO`, `LocalDateVO`,
+  `OrderItemVO`…), eventos e erros, sem nenhuma dependência externa.
 - **application** — casos de uso como `CreateOrder`, `AdvanceOrderStatus` e `PublishDailyMenu`.
 - **infra** — HTTP, banco, tempo real e adaptadores do event bus.
 - **main** — composição e bootstrap.

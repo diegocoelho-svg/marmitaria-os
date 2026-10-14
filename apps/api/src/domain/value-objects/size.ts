@@ -1,4 +1,4 @@
-import { DomainError } from '../errors/domain-error'
+import { SizeInvalidError } from '../errors/size-invalid.error'
 
 export const sizes = ['small', 'medium', 'large'] as const
 
@@ -10,7 +10,7 @@ export function isSize(value: string): value is Size {
 
 export function assertSize(value: string): Size {
   if (!isSize(value)) {
-    throw new DomainError('size.invalid', `Invalid size: ${value}`)
+    throw new SizeInvalidError(value)
   }
 
   return value
