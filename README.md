@@ -49,7 +49,8 @@ Consequências:
 Uma fila digital de pedidos, pensada para **não deixar o atendimento mais lento**: registrar
 um pedido deve levar **2–3 toques**. Se for mais demorado que o papel, o papel volta.
 
-- O dono monta o **cardápio do dia** (ou da semana) com os pratos cadastrados.
+- O dono cadastra seus **cardápios** (A, B, C…) e escolhe qual vale em cada dia, podendo
+  ajustar os pratos só daquele dia.
 - No balcão, o atendente escolhe **prato + tamanho**, marca as **trocas** ("farofa → salada")
   e envia.
 - A **cozinha** vê o pedido aparecer em tempo real e avança o status até a entrega.
@@ -60,7 +61,7 @@ um pedido deve levar **2–3 toques**. Se for mais demorado que o papel, o papel
 ### MVP — fila de pedidos
 
 - Cadastro de pratos e de preços por tamanho (P / M / G).
-- Cardápio do dia, com planejamento antecipado e cópia de semanas anteriores.
+- Cardápios cadastráveis e ilimitados, escolhidos para cada dia, com planejamento antecipado.
 - Tela do balcão com ajustes rápidos (um toque) e observação livre.
 - Tela da cozinha com a fila em tempo real: `recebido → em preparo → pronto → entregue`.
 - Senha diária sequencial (001, 002…).
@@ -153,7 +154,8 @@ flowchart LR
     INFRA --> PG[(PostgreSQL)]
 ```
 
-- **domain** — `Order` (máquina de estados), `DailyMenu`, `Dish`, `SizePrice` e `Money`, sem
+- **domain** — entidades (`Order` com máquina de estados, `Menu`, `DailyMenu`, `Dish`,
+  `SizePrice`), value objects (`Money`, `LocalDate`, `OrderItem`…), eventos e erros, sem
   nenhuma dependência externa.
 - **application** — casos de uso como `CreateOrder`, `AdvanceOrderStatus` e `PublishDailyMenu`.
 - **infra** — HTTP, banco, tempo real e adaptadores do event bus.
@@ -204,7 +206,7 @@ Postgres, Playwright, publicação das imagens e CD fazem parte da estratégia p
 
 - [x] Concepção do produto e decisões de arquitetura (ADRs)
 - [x] Esqueleto do monorepo, Docker Compose e CI
-- [ ] Domínio: pedido, cardápio e preços (com testes)
+- [x] Domínio: pedido, cardápio e preços (com testes)
 - [ ] API REST + SSE
 - [ ] Telas de balcão e cozinha
 - [ ] Testes E2E nos 4 viewports
