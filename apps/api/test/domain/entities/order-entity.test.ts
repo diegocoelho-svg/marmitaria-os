@@ -203,10 +203,10 @@ describe('OrderEntity', () => {
   it('does not expose its items or dates for mutation', () => {
     const order = newOrder()
 
-    ;(order.items as OrderItemVO[]).push(item())
     order.createdAt.setFullYear(2030)
 
-    expect(order.items).toHaveLength(1)
+    expect(order.items).toEqual([item()])
+    expect(order.items).not.toBe(order.items)
     expect(order.createdAt).toEqual(createdAt)
   })
 

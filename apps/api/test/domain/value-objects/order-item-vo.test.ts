@@ -74,9 +74,9 @@ describe('OrderItemVO', () => {
     const item = OrderItemVO.create({ ...base, adjustments })
 
     adjustments.push({ adjustmentId: 'sem-feijao', label: 'Sem feijão' })
-    ;(item.adjustments as unknown[]).pop()
 
     expect(item.adjustments).toHaveLength(1)
+    expect(item.adjustments).not.toBe(item.adjustments)
     expect(Object.isFrozen(item.adjustments[0])).toBe(true)
   })
 

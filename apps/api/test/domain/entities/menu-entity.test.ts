@@ -35,9 +35,9 @@ describe('MenuEntity', () => {
     const menu = MenuEntity.create({ id: 'menu-d', name: 'D', dishIds })
 
     dishIds.push('bife')
-    ;(menu.dishIds as string[]).push('bife')
 
     expect(menu.dishIds).toEqual(['frango', 'lasanha'])
+    expect(menu.dishIds).not.toBe(menu.dishIds)
   })
 
   it('cannot be edited once archived', () => {
