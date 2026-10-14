@@ -5,7 +5,7 @@ import { OrderItemInvalidNoteError } from '../../../src/domain/errors/order-item
 import { OrderItemInvalidQuantityError } from '../../../src/domain/errors/order-item-invalid-quantity.error'
 import { OrderItemZeroPriceError } from '../../../src/domain/errors/order-item-zero-price.error'
 import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
-import { OrderItemVO } from '../../../src/domain/value-objects/order-item-vo'
+import { OrderItemVO, type OrderItemInput } from '../../../src/domain/value-objects/order-item-vo'
 
 const base = {
   dishId: 'frango',
@@ -13,7 +13,7 @@ const base = {
   size: 'large',
   unitPrice: MoneyVO.fromCents(2200),
   quantity: 1,
-} as const
+} satisfies OrderItemInput
 
 describe('OrderItemVO', () => {
   it('computes the subtotal from the frozen unit price', () => {

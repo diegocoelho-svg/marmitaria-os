@@ -7,7 +7,11 @@ import { OrderInvalidOriginError } from '../../../src/domain/errors/order-invali
 import { OrderInvalidStatusError } from '../../../src/domain/errors/order-invalid-status.error'
 import { OrderInvalidTransitionError } from '../../../src/domain/errors/order-invalid-transition.error'
 import { OrderTimeWentBackwardsError } from '../../../src/domain/errors/order-time-went-backwards.error'
-import { OrderEntity, type OrderOrigin } from '../../../src/domain/entities/order-entity'
+import {
+  OrderEntity,
+  type OrderOrigin,
+  type RestoreOrderInput,
+} from '../../../src/domain/entities/order-entity'
 import { LocalDateVO } from '../../../src/domain/value-objects/local-date-vo'
 import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
 import { OrderItemVO } from '../../../src/domain/value-objects/order-item-vo'
@@ -51,7 +55,7 @@ const restoreBase = {
   origin: 'counter',
   items: [item()],
   createdAt,
-} as const
+} satisfies Omit<RestoreOrderInput, 'status'>
 
 describe('OrderEntity', () => {
   it('is created as received and records OrderCreated', () => {
