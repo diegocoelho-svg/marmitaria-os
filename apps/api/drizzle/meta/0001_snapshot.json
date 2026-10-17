@@ -1,0 +1,710 @@
+{
+  "id": "d621780e-8ab0-478f-b286-9819fdac3461",
+  "prevId": "cda05fc9-dc5e-4603-b6b9-ffbbc3fb152a",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.daily_menu_dishes": {
+      "name": "daily_menu_dishes",
+      "schema": "",
+      "columns": {
+        "daily_menu_id": {
+          "name": "daily_menu_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dish_id": {
+          "name": "dish_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "daily_menu_dishes_daily_menu_id_daily_menus_id_fk": {
+          "name": "daily_menu_dishes_daily_menu_id_daily_menus_id_fk",
+          "tableFrom": "daily_menu_dishes",
+          "columnsFrom": [
+            "daily_menu_id"
+          ],
+          "tableTo": "daily_menus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "daily_menu_dishes_dish_id_dishes_id_fk": {
+          "name": "daily_menu_dishes_dish_id_dishes_id_fk",
+          "tableFrom": "daily_menu_dishes",
+          "columnsFrom": [
+            "dish_id"
+          ],
+          "tableTo": "dishes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "daily_menu_dishes_daily_menu_id_position_pk": {
+          "name": "daily_menu_dishes_daily_menu_id_position_pk",
+          "columns": [
+            "daily_menu_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "daily_menu_dishes_daily_menu_dish_unique": {
+          "name": "daily_menu_dishes_daily_menu_dish_unique",
+          "columns": [
+            "daily_menu_id",
+            "dish_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "daily_menu_dishes_position_non_negative": {
+          "name": "daily_menu_dishes_position_non_negative",
+          "value": "\"daily_menu_dishes\".\"position\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.daily_menus": {
+      "name": "daily_menus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_menu_id": {
+          "name": "source_menu_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "daily_menus_source_menu_id_menus_id_fk": {
+          "name": "daily_menus_source_menu_id_menus_id_fk",
+          "tableFrom": "daily_menus",
+          "columnsFrom": [
+            "source_menu_id"
+          ],
+          "tableTo": "menus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "daily_menus_date_unique": {
+          "name": "daily_menus_date_unique",
+          "columns": [
+            "date"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.dishes": {
+      "name": "dishes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.menu_dishes": {
+      "name": "menu_dishes",
+      "schema": "",
+      "columns": {
+        "menu_id": {
+          "name": "menu_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dish_id": {
+          "name": "dish_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "menu_dishes_menu_id_menus_id_fk": {
+          "name": "menu_dishes_menu_id_menus_id_fk",
+          "tableFrom": "menu_dishes",
+          "columnsFrom": [
+            "menu_id"
+          ],
+          "tableTo": "menus",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "menu_dishes_dish_id_dishes_id_fk": {
+          "name": "menu_dishes_dish_id_dishes_id_fk",
+          "tableFrom": "menu_dishes",
+          "columnsFrom": [
+            "dish_id"
+          ],
+          "tableTo": "dishes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "menu_dishes_menu_id_position_pk": {
+          "name": "menu_dishes_menu_id_position_pk",
+          "columns": [
+            "menu_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "menu_dishes_menu_dish_unique": {
+          "name": "menu_dishes_menu_dish_unique",
+          "columns": [
+            "menu_id",
+            "dish_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "menu_dishes_position_non_negative": {
+          "name": "menu_dishes_position_non_negative",
+          "value": "\"menu_dishes\".\"position\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.menus": {
+      "name": "menus",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name_key": {
+          "name": "name_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "menus_active_name_key_unique": {
+          "name": "menus_active_name_key_unique",
+          "columns": [
+            {
+              "expression": "name_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "where": "\"menus\".\"archived_at\" is null",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.order_item_adjustments": {
+      "name": "order_item_adjustments",
+      "schema": "",
+      "columns": {
+        "order_id": {
+          "name": "order_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_position": {
+          "name": "item_position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "adjustment_id": {
+          "name": "adjustment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "order_item_adjustments_item_fk": {
+          "name": "order_item_adjustments_item_fk",
+          "tableFrom": "order_item_adjustments",
+          "columnsFrom": [
+            "order_id",
+            "item_position"
+          ],
+          "tableTo": "order_items",
+          "columnsTo": [
+            "order_id",
+            "position"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {
+        "order_item_adjustments_order_id_item_position_position_pk": {
+          "name": "order_item_adjustments_order_id_item_position_position_pk",
+          "columns": [
+            "order_id",
+            "item_position",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "order_item_adjustments_item_adjustment_unique": {
+          "name": "order_item_adjustments_item_adjustment_unique",
+          "columns": [
+            "order_id",
+            "item_position",
+            "adjustment_id"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "order_item_adjustments_position_non_negative": {
+          "name": "order_item_adjustments_position_non_negative",
+          "value": "\"order_item_adjustments\".\"position\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.order_items": {
+      "name": "order_items",
+      "schema": "",
+      "columns": {
+        "order_id": {
+          "name": "order_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dish_id": {
+          "name": "dish_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dish_name": {
+          "name": "dish_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "size": {
+          "name": "size",
+          "type": "size",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "unit_price_cents": {
+          "name": "unit_price_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "name": "quantity",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "order_items_order_id_orders_id_fk": {
+          "name": "order_items_order_id_orders_id_fk",
+          "tableFrom": "order_items",
+          "columnsFrom": [
+            "order_id"
+          ],
+          "tableTo": "orders",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "order_items_dish_id_dishes_id_fk": {
+          "name": "order_items_dish_id_dishes_id_fk",
+          "tableFrom": "order_items",
+          "columnsFrom": [
+            "dish_id"
+          ],
+          "tableTo": "dishes",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "order_items_order_id_position_pk": {
+          "name": "order_items_order_id_position_pk",
+          "columns": [
+            "order_id",
+            "position"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "order_items_position_non_negative": {
+          "name": "order_items_position_non_negative",
+          "value": "\"order_items\".\"position\" >= 0"
+        },
+        "order_items_unit_price_cents_positive": {
+          "name": "order_items_unit_price_cents_positive",
+          "value": "\"order_items\".\"unit_price_cents\" > 0"
+        },
+        "order_items_quantity_positive": {
+          "name": "order_items_quantity_positive",
+          "value": "\"order_items\".\"quantity\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.orders": {
+      "name": "orders",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "business_date": {
+          "name": "business_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ticket": {
+          "name": "ticket",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "origin": {
+          "name": "origin",
+          "type": "order_origin",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_name": {
+          "name": "customer_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "order_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ready_at": {
+          "name": "ready_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delivered_at": {
+          "name": "delivered_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cancelled_at": {
+          "name": "cancelled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "orders_business_date_ticket_unique": {
+          "name": "orders_business_date_ticket_unique",
+          "columns": [
+            "business_date",
+            "ticket"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "orders_ticket_positive": {
+          "name": "orders_ticket_positive",
+          "value": "\"orders\".\"ticket\" >= 1"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.size_prices": {
+      "name": "size_prices",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "size": {
+          "name": "size",
+          "type": "size",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price_cents": {
+          "name": "price_cents",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valid_from": {
+          "name": "valid_from",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "valid_to": {
+          "name": "valid_to",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "size_prices_open_size_unique": {
+          "name": "size_prices_open_size_unique",
+          "columns": [
+            {
+              "expression": "size",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "with": {},
+          "method": "btree",
+          "where": "\"size_prices\".\"valid_to\" is null",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "size_prices_price_cents_positive": {
+          "name": "size_prices_price_cents_positive",
+          "value": "\"size_prices\".\"price_cents\" > 0"
+        },
+        "size_prices_valid_period": {
+          "name": "size_prices_valid_period",
+          "value": "\"size_prices\".\"valid_to\" IS NULL OR \"size_prices\".\"valid_to\" > \"size_prices\".\"valid_from\""
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.order_origin": {
+      "name": "order_origin",
+      "schema": "public",
+      "values": [
+        "counter",
+        "whatsapp"
+      ]
+    },
+    "public.order_status": {
+      "name": "order_status",
+      "schema": "public",
+      "values": [
+        "received",
+        "preparing",
+        "ready",
+        "delivered",
+        "cancelled"
+      ]
+    },
+    "public.size": {
+      "name": "size",
+      "schema": "public",
+      "values": [
+        "small",
+        "medium",
+        "large"
+      ]
+    }
+  },
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

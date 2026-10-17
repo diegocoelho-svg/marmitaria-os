@@ -19,6 +19,7 @@ WORKDIR /app
 COPY --from=build --chown=node:node /out/package.json ./
 COPY --from=build --chown=node:node /out/node_modules ./node_modules
 COPY --from=build --chown=node:node /out/dist ./dist
+COPY --from=build --chown=node:node /app/apps/api/drizzle ./drizzle
 USER node
 EXPOSE 3333
 CMD ["node", "dist/server.js"]

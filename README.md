@@ -146,7 +146,7 @@ flowchart LR
     end
     subgraph api[apps/api]
         direction TB
-        INFRA[infra<br/>Fastify · Drizzle · SSE] --> APP[application<br/>casos de uso]
+        INFRA[infrastructure<br/>Fastify · Drizzle · SSE] --> APP[application<br/>casos de uso]
         APP --> DOMAIN[domain<br/>entidades · eventos · portas]
     end
     UI -- REST --> INFRA
@@ -156,10 +156,14 @@ flowchart LR
 
 - **domain** — entidades (`OrderEntity` com máquina de estados, `MenuEntity`,
   `DailyMenuEntity`, `DishEntity`, `SizePriceEntity`), value objects (`MoneyVO`, `LocalDateVO`,
-  `OrderItemVO`…), eventos e erros, sem nenhuma dependência externa.
+  `OrderItemVO`…), eventos, erros e interfaces de repositório, sem nenhuma dependência externa.
 - **application** — casos de uso como `CreateOrder`, `AdvanceOrderStatus` e `PublishDailyMenu`.
-- **infra** — HTTP, banco, tempo real e adaptadores do event bus.
-- **main** — composição e bootstrap.
+- **infrastructure** — HTTP, configuração, banco (schema Drizzle, mappers e repositórios
+  `Pg*`), composição e, em breve, tempo real e adaptadores do event bus.
+
+A estrutura segue o padrão do `sw-retina-apis` ([0023](./docs/adr/0023-estrutura-da-api-e-persistencia.md)):
+imports com o alias `@/`, testes `*.spec.ts` ao lado do código e testes de integração
+`*.int.spec.ts` contra um Postgres real.
 
 ### Infraestrutura agnóstica
 
@@ -191,9 +195,10 @@ marmitaria-os/
 
 ## Qualidade e entrega
 
-O CI atual executa lint, formatação, typecheck, testes existentes e build dos apps, além de
-subir a stack do Docker Compose com um smoke test em `/api/health`. Testes de integração com
-Postgres, Playwright, publicação das imagens e CD fazem parte da estratégia planejada abaixo.
+O CI atual executa lint, formatação, typecheck, testes unitários, testes de integração contra
+um Postgres real e build dos apps, além de subir a stack do Docker Compose com um smoke test
+em `/api/health`. Playwright, publicação das imagens e CD fazem parte da estratégia planejada
+abaixo.
 
 - **Testes:** muitos unitários no domínio, integração contra um Postgres real e poucos E2E
   críticos. Os E2E de interface rodam em desktop, mobile, tablet e TV.
@@ -233,7 +238,8 @@ Se necessário, instale o pnpm com `npm install --global pnpm@11.24.0`.
 ```bash
 pnpm install
 cp apps/api/.env.example apps/api/.env
-docker compose up -d postgres
+docker compose up --wait postgres
+pnpm --filter @marmitaria/api db:migrate
 pnpm dev
 ```
 
@@ -247,7 +253,8 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Tudo fica disponível em `http://localhost`. Com um domínio em `SITE_ADDRESS`, o Caddy emite o
+O serviço `migrate` aplica as migrations antes de a API subir. Tudo fica disponível em
+`http://localhost`. Com um domínio em `SITE_ADDRESS`, o Caddy emite o
 certificado HTTPS automaticamente.
 
 | Comando | O que faz |
@@ -255,5 +262,8 @@ certificado HTTPS automaticamente.
 | `pnpm lint` | ESLint em todo o monorepo |
 | `pnpm format:check` | Verifica a formatação com Prettier |
 | `pnpm typecheck` | Typecheck de todos os pacotes |
-| `pnpm test` | Testes de todos os pacotes |
+| `pnpm test` | Testes unitários de todos os pacotes |
+| `pnpm test:integration` | Testes de integração da API (Postgres em `TEST_DATABASE_URL`) |
+| `pnpm --filter @marmitaria/api db:generate` | Gera uma migration a partir do schema Drizzle |
+| `pnpm --filter @marmitaria/api db:migrate` | Aplica as migrations em `DATABASE_URL` |
 | `pnpm build` | Build de todos os pacotes |

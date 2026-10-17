@@ -26,6 +26,7 @@ Decisões de arquitetura do marmitaria-os. Formato: [`0000-template.md`](./0000-
 | [0020](./0020-rotas-da-api-sob-prefixo-api.md) | Rotas da API sob o prefixo `/api` | Aceito |
 | [0021](./0021-cardapios-cadastraveis.md) | Cardápios cadastráveis, copiados para o cardápio do dia | Aceito |
 | [0022](./0022-regras-do-modelo-de-dominio.md) | Regras do modelo de domínio | Aceito |
+| [0023](./0023-estrutura-da-api-e-persistencia.md) | Estrutura da API no padrão sw-retina e persistência com Drizzle (ajusta 0006) | Aceito |
 
 ## Em aberto
 
