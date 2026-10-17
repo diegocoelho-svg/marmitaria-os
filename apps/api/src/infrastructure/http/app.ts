@@ -1,5 +1,5 @@
 import Fastify, { type FastifyServerOptions } from 'fastify'
-import { healthRoutes } from './routes/health'
+import { healthRoutes } from '@/infrastructure/http/routes/health'
 
 export function buildApp(options: FastifyServerOptions = {}) {
   const app = Fastify(options)

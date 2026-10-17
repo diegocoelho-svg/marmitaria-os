@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { MenuArchivedError } from '../../../src/domain/errors/menu-archived.error'
-import { MenuDuplicateDishError } from '../../../src/domain/errors/menu-duplicate-dish.error'
-import { MenuEmptyError } from '../../../src/domain/errors/menu-empty.error'
-import { MenuEntity } from '../../../src/domain/entities/menu-entity'
+import { MenuArchivedError } from '@/domain/errors/menu-archived.error'
+import { MenuDuplicateDishError } from '@/domain/errors/menu-duplicate-dish.error'
+import { MenuEmptyError } from '@/domain/errors/menu-empty.error'
+import { MenuEntity } from '@/domain/entities/menu-entity'
 
 const now = new Date('2026-10-10T12:00:00Z')
 

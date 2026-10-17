@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { MoneyInvalidAmountError } from '../../../src/domain/errors/money-invalid-amount.error'
-import { OrderItemDuplicateAdjustmentError } from '../../../src/domain/errors/order-item-duplicate-adjustment.error'
-import { OrderItemInvalidNoteError } from '../../../src/domain/errors/order-item-invalid-note.error'
-import { OrderItemInvalidQuantityError } from '../../../src/domain/errors/order-item-invalid-quantity.error'
-import { OrderItemZeroPriceError } from '../../../src/domain/errors/order-item-zero-price.error'
-import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
-import { OrderItemVO, type OrderItemInput } from '../../../src/domain/value-objects/order-item-vo'
+import { MoneyInvalidAmountError } from '@/domain/errors/money-invalid-amount.error'
+import { OrderItemDuplicateAdjustmentError } from '@/domain/errors/order-item-duplicate-adjustment.error'
+import { OrderItemInvalidNoteError } from '@/domain/errors/order-item-invalid-note.error'
+import { OrderItemInvalidQuantityError } from '@/domain/errors/order-item-invalid-quantity.error'
+import { OrderItemZeroPriceError } from '@/domain/errors/order-item-zero-price.error'
+import { MoneyVO } from '@/domain/value-objects/money-vo'
+import { OrderItemVO, type OrderItemInput } from '@/domain/value-objects/order-item-vo'
 
 const base = {
   dishId: 'frango',

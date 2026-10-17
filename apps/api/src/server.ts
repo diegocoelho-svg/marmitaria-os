@@ -1,6 +1,6 @@
-import { buildApp } from '../infra/http/app'
-import { buildLoggerOptions } from '../infra/http/logger'
-import { env } from './env'
+import { env } from '@/infrastructure/config/env'
+import { buildLoggerOptions } from '@/infrastructure/config/logger'
+import { buildApp } from '@/infrastructure/http/app'
 
 const app = buildApp({
   logger: buildLoggerOptions({ environment: env.NODE_ENV, level: env.LOG_LEVEL }),

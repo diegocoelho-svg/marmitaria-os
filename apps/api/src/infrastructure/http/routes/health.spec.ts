@@ -1,6 +1,6 @@
 import { healthResponseSchema } from '@marmitaria/contracts'
 import { afterAll, describe, expect, it } from 'vitest'
-import { buildApp } from '../src/infra/http/app'
+import { buildApp } from '@/infrastructure/http/app'
 
 describe('GET /api/health', () => {
   const app = buildApp()

@@ -1,22 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { MoneyInvalidAmountError } from '../../../src/domain/errors/money-invalid-amount.error'
-import { OrderBusinessDateMismatchError } from '../../../src/domain/errors/order-business-date-mismatch.error'
-import { OrderEmptyError } from '../../../src/domain/errors/order-empty.error'
-import { OrderInconsistentStateError } from '../../../src/domain/errors/order-inconsistent-state.error'
-import { OrderInvalidOriginError } from '../../../src/domain/errors/order-invalid-origin.error'
-import { OrderInvalidStatusError } from '../../../src/domain/errors/order-invalid-status.error'
-import { OrderInvalidTransitionError } from '../../../src/domain/errors/order-invalid-transition.error'
-import { OrderTimeWentBackwardsError } from '../../../src/domain/errors/order-time-went-backwards.error'
+import { MoneyInvalidAmountError } from '@/domain/errors/money-invalid-amount.error'
+import { OrderBusinessDateMismatchError } from '@/domain/errors/order-business-date-mismatch.error'
+import { OrderEmptyError } from '@/domain/errors/order-empty.error'
+import { OrderInconsistentStateError } from '@/domain/errors/order-inconsistent-state.error'
+import { OrderInvalidOriginError } from '@/domain/errors/order-invalid-origin.error'
+import { OrderInvalidStatusError } from '@/domain/errors/order-invalid-status.error'
+import { OrderInvalidTransitionError } from '@/domain/errors/order-invalid-transition.error'
+import { OrderTimeWentBackwardsError } from '@/domain/errors/order-time-went-backwards.error'
 import {
   OrderEntity,
   type OrderOrigin,
   type RestoreOrderInput,
-} from '../../../src/domain/entities/order-entity'
-import { LocalDateVO } from '../../../src/domain/value-objects/local-date-vo'
-import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
-import { OrderItemVO } from '../../../src/domain/value-objects/order-item-vo'
-import type { OrderStatus } from '../../../src/domain/value-objects/order-status'
-import { TicketNumberVO } from '../../../src/domain/value-objects/ticket-number-vo'
+} from '@/domain/entities/order-entity'
+import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
+import { MoneyVO } from '@/domain/value-objects/money-vo'
+import { OrderItemVO } from '@/domain/value-objects/order-item-vo'
+import type { OrderStatus } from '@/domain/value-objects/order-status'
+import { TicketNumberVO } from '@/domain/value-objects/ticket-number-vo'
 
 const createdAt = new Date('2026-10-10T15:00:00Z')
 const businessDate = LocalDateVO.parse('2026-10-10')

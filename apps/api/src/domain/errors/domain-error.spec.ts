@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DomainError } from '../../../src/domain/errors/domain-error'
-import { OrderInvalidTransitionError } from '../../../src/domain/errors/order-invalid-transition.error'
+import { DomainError } from '@/domain/errors/domain-error'
+import { OrderInvalidTransitionError } from '@/domain/errors/order-invalid-transition.error'
 
 describe('DomainError', () => {
   it('carries a stable code and the class name', () => {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { MenuDuplicateDishError } from '../../../src/domain/errors/menu-duplicate-dish.error'
-import { MenuEmptyError } from '../../../src/domain/errors/menu-empty.error'
-import { DishSelectionVO } from '../../../src/domain/value-objects/dish-selection-vo'
+import { MenuDuplicateDishError } from '@/domain/errors/menu-duplicate-dish.error'
+import { MenuEmptyError } from '@/domain/errors/menu-empty.error'
+import { DishSelectionVO } from '@/domain/value-objects/dish-selection-vo'
 
 describe('DishSelectionVO', () => {
   it('rejects an empty or repeated selection', () => {

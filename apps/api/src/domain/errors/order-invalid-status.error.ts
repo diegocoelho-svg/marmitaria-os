@@ -1,4 +1,4 @@
-import { DomainError } from './domain-error'
+import { DomainError } from '@/domain/errors/domain-error'
 
 export class OrderInvalidStatusError extends DomainError {
   constructor(status: string) {

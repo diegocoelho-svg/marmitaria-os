@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { TicketNumberInvalidError } from '../../../src/domain/errors/ticket-number-invalid.error'
-import { TicketNumberVO } from '../../../src/domain/value-objects/ticket-number-vo'
+import { TicketNumberInvalidError } from '@/domain/errors/ticket-number-invalid.error'
+import { TicketNumberVO } from '@/domain/value-objects/ticket-number-vo'
 
 describe('TicketNumberVO', () => {
   it.each([

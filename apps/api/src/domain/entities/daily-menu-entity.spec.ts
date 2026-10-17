@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { DailyMenuPastDateError } from '../../../src/domain/errors/daily-menu-past-date.error'
-import { MenuArchivedError } from '../../../src/domain/errors/menu-archived.error'
-import { DailyMenuEntity } from '../../../src/domain/entities/daily-menu-entity'
-import { MenuEntity } from '../../../src/domain/entities/menu-entity'
-import { LocalDateVO } from '../../../src/domain/value-objects/local-date-vo'
+import { DailyMenuPastDateError } from '@/domain/errors/daily-menu-past-date.error'
+import { MenuArchivedError } from '@/domain/errors/menu-archived.error'
+import { DailyMenuEntity } from '@/domain/entities/daily-menu-entity'
+import { MenuEntity } from '@/domain/entities/menu-entity'
+import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 
 const now = new Date('2026-10-10T12:00:00Z')
 const today = LocalDateVO.parse('2026-10-10')

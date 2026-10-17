@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { InstantInvalidError } from '../../../src/domain/errors/instant-invalid.error'
-import { LocalDateInvalidError } from '../../../src/domain/errors/local-date-invalid.error'
-import { LocalDateVO } from '../../../src/domain/value-objects/local-date-vo'
+import { InstantInvalidError } from '@/domain/errors/instant-invalid.error'
+import { LocalDateInvalidError } from '@/domain/errors/local-date-invalid.error'
+import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 
 describe('LocalDateVO', () => {
   it.each(['2026-02-30', '2026-13-01', '2026-00-10', '2025-02-29', '2026-1-05', '10/10/2026'])(

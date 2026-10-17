@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { MoneyInvalidAmountError } from '../../../src/domain/errors/money-invalid-amount.error'
-import { MoneyInvalidFactorError } from '../../../src/domain/errors/money-invalid-factor.error'
-import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
+import { MoneyInvalidAmountError } from '@/domain/errors/money-invalid-amount.error'
+import { MoneyInvalidFactorError } from '@/domain/errors/money-invalid-factor.error'
+import { MoneyVO } from '@/domain/value-objects/money-vo'
 
 describe('MoneyVO', () => {
   it.each([-1, 10.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])(

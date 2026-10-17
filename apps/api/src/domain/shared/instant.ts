@@ -1,4 +1,4 @@
-import { InstantInvalidError } from '../errors/instant-invalid.error'
+import { InstantInvalidError } from '@/domain/errors/instant-invalid.error'
 
 export function toTimestamp(instant: Date): number {
   const timestamp = instant.getTime()

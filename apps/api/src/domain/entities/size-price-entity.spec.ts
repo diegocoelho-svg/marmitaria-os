@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { SizeInvalidError } from '../../../src/domain/errors/size-invalid.error'
-import { SizePriceAlreadyClosedError } from '../../../src/domain/errors/size-price-already-closed.error'
-import { SizePriceInvalidPeriodError } from '../../../src/domain/errors/size-price-invalid-period.error'
-import { SizePriceZeroPriceError } from '../../../src/domain/errors/size-price-zero-price.error'
-import { SizePriceEntity } from '../../../src/domain/entities/size-price-entity'
-import type { Size } from '../../../src/domain/value-objects/size'
-import { MoneyVO } from '../../../src/domain/value-objects/money-vo'
+import { SizeInvalidError } from '@/domain/errors/size-invalid.error'
+import { SizePriceAlreadyClosedError } from '@/domain/errors/size-price-already-closed.error'
+import { SizePriceInvalidPeriodError } from '@/domain/errors/size-price-invalid-period.error'
+import { SizePriceZeroPriceError } from '@/domain/errors/size-price-zero-price.error'
+import { SizePriceEntity } from '@/domain/entities/size-price-entity'
+import type { Size } from '@/domain/value-objects/size'
+import { MoneyVO } from '@/domain/value-objects/money-vo'
 
 const validFrom = new Date('2026-10-01T12:00:00Z')
 

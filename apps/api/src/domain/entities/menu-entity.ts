@@ -1,9 +1,9 @@
-import { MenuArchivedError } from '../errors/menu-archived.error'
-import { MenuInvalidNameError } from '../errors/menu-invalid-name.error'
-import { Entity } from '../shared/entity'
-import { copyInstant } from '../shared/instant'
-import { requiredText } from '../shared/text'
-import { DishSelectionVO } from '../value-objects/dish-selection-vo'
+import { MenuArchivedError } from '@/domain/errors/menu-archived.error'
+import { MenuInvalidNameError } from '@/domain/errors/menu-invalid-name.error'
+import { Entity } from '@/domain/shared/entity'
+import { copyInstant } from '@/domain/shared/instant'
+import { requiredText } from '@/domain/shared/text'
+import { DishSelectionVO } from '@/domain/value-objects/dish-selection-vo'
 
 const NAME_MAX_LENGTH = 60
 

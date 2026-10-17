@@ -1,4 +1,4 @@
-import type { DomainError } from '../errors/domain-error'
+import type { DomainError } from '@/domain/errors/domain-error'
 
 type TextError = new (maxLength: number) => DomainError
 

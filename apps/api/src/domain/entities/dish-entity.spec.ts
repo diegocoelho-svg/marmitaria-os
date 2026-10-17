@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { DishInvalidNameError } from '../../../src/domain/errors/dish-invalid-name.error'
-import { DishEntity } from '../../../src/domain/entities/dish-entity'
+import { DishInvalidNameError } from '@/domain/errors/dish-invalid-name.error'
+import { DishEntity } from '@/domain/entities/dish-entity'
 
 describe('DishEntity', () => {
   it('is created active with a trimmed name', () => {
