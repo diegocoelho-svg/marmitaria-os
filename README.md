@@ -161,7 +161,7 @@ flowchart LR
 - **infrastructure** — HTTP, configuração, banco (schema Drizzle, mappers e repositórios
   `Pg*`), composição e, em breve, tempo real e adaptadores do event bus.
 
-A estrutura segue o padrão do `sw-retina-apis` ([0023](./docs/adr/0023-estrutura-da-api-e-persistencia.md)):
+A estrutura de pastas está no [0023](./docs/adr/0023-estrutura-da-api-e-persistencia.md):
 imports com o alias `@/`, testes `*.spec.ts` ao lado do código e testes de integração
 `*.int.spec.ts` contra um Postgres real.
 

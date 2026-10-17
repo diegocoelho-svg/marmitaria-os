@@ -1,4 +1,4 @@
-# 0023 — Estrutura da API no padrão sw-retina e persistência com Drizzle
+# 0023 — Estrutura de pastas da API e persistência com Drizzle
 
 - **Status:** Aceito
 - **Data:** 2026-10-17
@@ -6,10 +6,9 @@
 ## Contexto
 
 O 0006 definiu as camadas com `infra/` e `main/`, e o 0007 escolheu Drizzle. Ao ligar o
-banco, a API passa a ter repositórios, schema, migrations e composição. Queremos seguir a
-estrutura do `sw-retina-apis` (`apps/web-api`), já conhecida por quem mantém o projeto, mas
-com Drizzle no lugar do Kysely e sem o container global de DI de lá, que guarda tudo como
-`unknown` e devolve com cast.
+banco, a API passa a ter repositórios, schema, migrations e composição, e `infra/` e `main/`
+não deixam claro onde cada peça fica. Também queremos montar as dependências sem um
+container global de DI que guarde tudo como `unknown` e devolva com cast.
 
 ## Decisão
 
@@ -54,9 +53,10 @@ antes da API, que só sobe se ele terminar com sucesso, como prevê o deploy do 
 
 ## Alternativas consideradas
 
-- **Manter `infra/` e `main/`** — funciona, mas diverge do padrão usado nos outros projetos.
-- **Copiar o container do retina** — mesma ergonomia, ao custo de `unknown`, cast e estado
-  global.
+- **Manter `infra/` e `main/`** — funciona, mas banco, configuração e composição ficariam
+  sem lugar próprio.
+- **Container global de DI com registro por nome** — mesma ergonomia, ao custo de `unknown`,
+  cast e estado global.
 - **Migrations no boot da API** — impossível esquecer, mas uma migration quebrada derruba a
   API e várias instâncias disputariam a mesma migration.
 - **Ajustes do item em `jsonb`** — menos tabelas, mas a unicidade por item e as outras
