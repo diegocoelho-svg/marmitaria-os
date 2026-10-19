@@ -27,8 +27,10 @@ Decisões de arquitetura do marmitaria-os. Formato: [`0000-template.md`](./0000-
 | [0021](./0021-cardapios-cadastraveis.md) | Cardápios cadastráveis, copiados para o cardápio do dia | Aceito |
 | [0022](./0022-regras-do-modelo-de-dominio.md) | Regras do modelo de domínio | Aceito |
 | [0023](./0023-estrutura-da-api-e-persistencia.md) | Estrutura de pastas da API e persistência com Drizzle (ajusta 0006) | Aceito |
+| [0024](./0024-casos-de-uso-e-camada-http.md) | Casos de uso, camada HTTP e erros da API (ajusta 0023) | Aceito |
 
 ## Em aberto
 
+- Autenticação da API e das telas — será discutida numa decisão própria.
 - Forma de pagamento no pedido (Pix/dinheiro/cartão) para o dashboard — validar com o dono.
 - Onde rodar a produção: servidor na loja (funciona sem internet) ou VPS — ver 0017.

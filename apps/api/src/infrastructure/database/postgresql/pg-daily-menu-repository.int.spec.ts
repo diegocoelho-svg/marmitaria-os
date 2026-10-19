@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { DailyMenuDateTakenError } from '@/application/errors/daily-menu-date-taken.error'
 import { DailyMenuEntity } from '@/domain/entities/daily-menu-entity'
 import { MenuEntity } from '@/domain/entities/menu-entity'
 import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import { PgDailyMenuRepository } from '@/infrastructure/database/postgresql/pg-daily-menu-repository'
 import { PgMenuRepository } from '@/infrastructure/database/postgresql/pg-menu-repository'
-import { seedDish, violates } from '@test/integration/fixtures'
+import { seedDish } from '@test/integration/fixtures'
 import { useTestDatabase } from '@test/integration/test-database'
 
 describe('PgDailyMenuRepository', () => {
@@ -27,11 +28,15 @@ describe('PgDailyMenuRepository', () => {
     await menus.create(cardapioB)
   })
 
-  const publish = () => DailyMenuEntity.fromMenu({ id: randomUUID(), date, menu: cardapioA, now })
+  const publish = (on = date) => {
+    const dailyMenu = DailyMenuEntity.fromMenu({ id: randomUUID(), date: on, menu: cardapioA, now })
+    dailyMenu.pullEvents()
+
+    return dailyMenu
+  }
 
   it('round-trips a daily menu by id and by date', async () => {
     const dailyMenu = publish()
-    dailyMenu.pullEvents()
 
     await repository.create(dailyMenu)
 
@@ -43,9 +48,7 @@ describe('PgDailyMenuRepository', () => {
   it('rejects a second daily menu for the same date', async () => {
     await repository.create(publish())
 
-    await expect(repository.create(publish())).rejects.toMatchObject(
-      violates('daily_menus_date_unique'),
-    )
+    await expect(repository.create(publish())).rejects.toBeInstanceOf(DailyMenuDateTakenError)
   })
 
   it('persists a new source menu and its dishes', async () => {
@@ -68,5 +71,21 @@ describe('PgDailyMenuRepository', () => {
     await repository.update(dailyMenu)
 
     expect(await repository.findById(dailyMenu.id)).toEqual(dailyMenu)
+  })
+
+  it('lists the daily menus of a period in date order', async () => {
+    const tuesday = publish(LocalDateVO.parse('2026-10-20'))
+    const thursday = publish(LocalDateVO.parse('2026-10-22'))
+    const monday = publish(LocalDateVO.parse('2026-10-26'))
+    await repository.create(thursday)
+    await repository.create(monday)
+    await repository.create(tuesday)
+
+    const period = await repository.findBetween(
+      LocalDateVO.parse('2026-10-20'),
+      LocalDateVO.parse('2026-10-22'),
+    )
+
+    expect(period).toEqual([tuesday, thursday])
   })
 })

@@ -1,10 +1,14 @@
-import { asc, eq } from 'drizzle-orm'
+import { and, asc, eq, gte, lte } from 'drizzle-orm'
+import { DailyMenuDateTakenError } from '@/application/errors/daily-menu-date-taken.error'
 import type { DailyMenuEntity } from '@/domain/entities/daily-menu-entity'
 import type { DailyMenuRepository } from '@/domain/repositories/daily-menu-repository'
 import type { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
+import { isUniqueViolation } from '@/infrastructure/database/postgresql/errors/unique-violation'
 import { DailyMenuMapper } from '@/infrastructure/database/postgresql/mappers/daily-menu-mapper'
 import { dailyMenuDishes, dailyMenus } from '@/infrastructure/database/postgresql/schema'
+
+const DATE_UNIQUE = 'daily_menus_date_unique'
 
 export class PgDailyMenuRepository implements DailyMenuRepository {
   constructor(private readonly db: DrizzleExecutor) {}
@@ -27,13 +31,31 @@ export class PgDailyMenuRepository implements DailyMenuRepository {
     return record ? DailyMenuMapper.fromPersistence(record) : null
   }
 
+  async findBetween(from: LocalDateVO, to: LocalDateVO): Promise<DailyMenuEntity[]> {
+    const records = await this.db.query.dailyMenus.findMany({
+      where: and(gte(dailyMenus.date, from.toString()), lte(dailyMenus.date, to.toString())),
+      orderBy: asc(dailyMenus.date),
+      with: { dishes: { orderBy: asc(dailyMenuDishes.position) } },
+    })
+
+    return records.map((record) => DailyMenuMapper.fromPersistence(record))
+  }
+
   async create(dailyMenu: DailyMenuEntity): Promise<void> {
     const persistence = DailyMenuMapper.toPersistence(dailyMenu)
 
-    await this.db.transaction(async (tx) => {
-      await tx.insert(dailyMenus).values(persistence.dailyMenu)
-      await tx.insert(dailyMenuDishes).values(persistence.dishes)
-    })
+    try {
+      await this.db.transaction(async (tx) => {
+        await tx.insert(dailyMenus).values(persistence.dailyMenu)
+        await tx.insert(dailyMenuDishes).values(persistence.dishes)
+      })
+    } catch (error) {
+      if (error instanceof Error && isUniqueViolation(error, DATE_UNIQUE)) {
+        throw new DailyMenuDateTakenError(dailyMenu.date.toString())
+      }
+
+      throw error
+    }
   }
 
   async update(dailyMenu: DailyMenuEntity): Promise<void> {
