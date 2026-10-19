@@ -1,5 +1,5 @@
-import { MenuDuplicateDishError } from '../errors/menu-duplicate-dish.error'
-import { MenuEmptyError } from '../errors/menu-empty.error'
+import { MenuDuplicateDishError } from '@/domain/errors/menu-duplicate-dish.error'
+import { MenuEmptyError } from '@/domain/errors/menu-empty.error'
 
 export class DishSelectionVO {
   private constructor(private readonly ids: readonly string[]) {

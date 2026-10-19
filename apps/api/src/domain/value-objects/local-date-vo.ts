@@ -1,5 +1,5 @@
-import { LocalDateInvalidError } from '../errors/local-date-invalid.error'
-import { toTimestamp } from '../shared/instant'
+import { LocalDateInvalidError } from '@/domain/errors/local-date-invalid.error'
+import { toTimestamp } from '@/domain/shared/instant'
 
 export const BUSINESS_TIME_ZONE = 'America/Sao_Paulo'
 

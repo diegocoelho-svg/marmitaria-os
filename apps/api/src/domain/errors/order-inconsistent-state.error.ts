@@ -1,5 +1,5 @@
-import { DomainError } from './domain-error'
-import type { OrderStatus } from '../value-objects/order-status'
+import { DomainError } from '@/domain/errors/domain-error'
+import type { OrderStatus } from '@/domain/value-objects/order-status'
 
 export class OrderInconsistentStateError extends DomainError {
   constructor(orderId: string, status: OrderStatus) {

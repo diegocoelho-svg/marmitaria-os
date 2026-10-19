@@ -1,5 +1,5 @@
-import { MoneyInvalidAmountError } from '../errors/money-invalid-amount.error'
-import { MoneyInvalidFactorError } from '../errors/money-invalid-factor.error'
+import { MoneyInvalidAmountError } from '@/domain/errors/money-invalid-amount.error'
+import { MoneyInvalidFactorError } from '@/domain/errors/money-invalid-factor.error'
 
 export class MoneyVO {
   private constructor(readonly cents: number) {

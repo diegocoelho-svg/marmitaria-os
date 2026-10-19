@@ -1,7 +1,18 @@
 {
   "extends": "@marmitaria/config/tsconfig.base.json",
   "compilerOptions": {
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
   },
-  "include": ["src", "test", "tsup.config.ts"]
+  "include": [
+    "src",
+    "test",
+    "drizzle.config.ts",
+    "tsup.config.ts",
+    "vitest.config.ts",
+    "vitest.int.config.ts"
+  ]
 }

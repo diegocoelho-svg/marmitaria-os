@@ -1,4 +1,4 @@
-import { SizeInvalidError } from '../errors/size-invalid.error'
+import { SizeInvalidError } from '@/domain/errors/size-invalid.error'
 
 export const sizes = ['small', 'medium', 'large'] as const
 

@@ -10,6 +10,7 @@
     "dev": "pnpm --parallel --filter \"./apps/*\" dev",
     "build": "pnpm --recursive build",
     "test": "pnpm --recursive test",
+    "test:integration": "pnpm --filter @marmitaria/api test:integration",
     "typecheck": "pnpm --recursive typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",

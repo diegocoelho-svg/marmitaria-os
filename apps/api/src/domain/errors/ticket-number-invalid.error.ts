@@ -1,4 +1,4 @@
-import { DomainError } from './domain-error'
+import { DomainError } from '@/domain/errors/domain-error'
 
 export class TicketNumberInvalidError extends DomainError {
   constructor(value: number) {

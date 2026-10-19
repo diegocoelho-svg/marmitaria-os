@@ -1,11 +1,11 @@
-import { DailyMenuPastDateError } from '../errors/daily-menu-past-date.error'
-import { MenuArchivedError } from '../errors/menu-archived.error'
-import type { DailyMenuEvent } from '../events/daily-menu-events'
-import { AggregateRoot } from '../shared/aggregate-root'
-import { copyInstant } from '../shared/instant'
-import { DishSelectionVO } from '../value-objects/dish-selection-vo'
-import { LocalDateVO } from '../value-objects/local-date-vo'
-import type { MenuEntity } from './menu-entity'
+import { DailyMenuPastDateError } from '@/domain/errors/daily-menu-past-date.error'
+import { MenuArchivedError } from '@/domain/errors/menu-archived.error'
+import type { DailyMenuEvent } from '@/domain/events/daily-menu-events'
+import { AggregateRoot } from '@/domain/shared/aggregate-root'
+import { copyInstant } from '@/domain/shared/instant'
+import { DishSelectionVO } from '@/domain/value-objects/dish-selection-vo'
+import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
+import type { MenuEntity } from '@/domain/entities/menu-entity'
 
 export type DailyMenuEntityProps = {
   readonly date: LocalDateVO

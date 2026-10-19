@@ -17,6 +17,17 @@ services:
       timeout: 5s
       retries: 10
 
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    command: ['node', 'dist/migrate.js']
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-marmitaria}:${POSTGRES_PASSWORD:-marmitaria}@postgres:5432/${POSTGRES_DB:-marmitaria}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   api:
     build:
       context: .
@@ -28,6 +39,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3333/api/health']
       interval: 5s

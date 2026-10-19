@@ -1,7 +1,7 @@
-import { DishInvalidDescriptionError } from '../errors/dish-invalid-description.error'
-import { DishInvalidNameError } from '../errors/dish-invalid-name.error'
-import { Entity } from '../shared/entity'
-import { optionalText, requiredText } from '../shared/text'
+import { DishInvalidDescriptionError } from '@/domain/errors/dish-invalid-description.error'
+import { DishInvalidNameError } from '@/domain/errors/dish-invalid-name.error'
+import { Entity } from '@/domain/shared/entity'
+import { optionalText, requiredText } from '@/domain/shared/text'
 
 const NAME_MAX_LENGTH = 80
 const DESCRIPTION_MAX_LENGTH = 280

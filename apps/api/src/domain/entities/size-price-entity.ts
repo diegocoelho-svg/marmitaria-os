@@ -1,10 +1,10 @@
-import { SizePriceAlreadyClosedError } from '../errors/size-price-already-closed.error'
-import { SizePriceInvalidPeriodError } from '../errors/size-price-invalid-period.error'
-import { SizePriceZeroPriceError } from '../errors/size-price-zero-price.error'
-import { Entity } from '../shared/entity'
-import { copyInstant, toTimestamp } from '../shared/instant'
-import type { MoneyVO } from '../value-objects/money-vo'
-import { assertSize, type Size } from '../value-objects/size'
+import { SizePriceAlreadyClosedError } from '@/domain/errors/size-price-already-closed.error'
+import { SizePriceInvalidPeriodError } from '@/domain/errors/size-price-invalid-period.error'
+import { SizePriceZeroPriceError } from '@/domain/errors/size-price-zero-price.error'
+import { Entity } from '@/domain/shared/entity'
+import { copyInstant, toTimestamp } from '@/domain/shared/instant'
+import type { MoneyVO } from '@/domain/value-objects/money-vo'
+import { assertSize, type Size } from '@/domain/value-objects/size'
 
 export type SizePriceEntityProps = {
   readonly size: Size

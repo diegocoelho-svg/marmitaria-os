@@ -1,12 +1,12 @@
-import { OrderItemDuplicateAdjustmentError } from '../errors/order-item-duplicate-adjustment.error'
-import { OrderItemInvalidAdjustmentError } from '../errors/order-item-invalid-adjustment.error'
-import { OrderItemInvalidDishNameError } from '../errors/order-item-invalid-dish-name.error'
-import { OrderItemInvalidNoteError } from '../errors/order-item-invalid-note.error'
-import { OrderItemInvalidQuantityError } from '../errors/order-item-invalid-quantity.error'
-import { OrderItemZeroPriceError } from '../errors/order-item-zero-price.error'
-import { optionalText, requiredText } from '../shared/text'
-import type { MoneyVO } from './money-vo'
-import { assertSize, type Size } from './size'
+import { OrderItemDuplicateAdjustmentError } from '@/domain/errors/order-item-duplicate-adjustment.error'
+import { OrderItemInvalidAdjustmentError } from '@/domain/errors/order-item-invalid-adjustment.error'
+import { OrderItemInvalidDishNameError } from '@/domain/errors/order-item-invalid-dish-name.error'
+import { OrderItemInvalidNoteError } from '@/domain/errors/order-item-invalid-note.error'
+import { OrderItemInvalidQuantityError } from '@/domain/errors/order-item-invalid-quantity.error'
+import { OrderItemZeroPriceError } from '@/domain/errors/order-item-zero-price.error'
+import { optionalText, requiredText } from '@/domain/shared/text'
+import type { MoneyVO } from '@/domain/value-objects/money-vo'
+import { assertSize, type Size } from '@/domain/value-objects/size'
 
 const DISH_NAME_MAX_LENGTH = 80
 const ADJUSTMENT_LABEL_MAX_LENGTH = 60

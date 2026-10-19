@@ -1,4 +1,4 @@
-import { TicketNumberInvalidError } from '../errors/ticket-number-invalid.error'
+import { TicketNumberInvalidError } from '@/domain/errors/ticket-number-invalid.error'
 
 export class TicketNumberVO {
   private constructor(readonly value: number) {
