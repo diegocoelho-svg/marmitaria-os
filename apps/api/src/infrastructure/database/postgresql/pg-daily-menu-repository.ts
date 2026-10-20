@@ -4,7 +4,7 @@ import type { DailyMenuEntity } from '@/domain/entities/daily-menu-entity'
 import type { DailyMenuRepository } from '@/domain/repositories/daily-menu-repository'
 import type { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
-import { isUniqueViolation } from '@/infrastructure/database/postgresql/errors/unique-violation'
+import { violatesConstraint } from '@/infrastructure/database/postgresql/errors/constraint-violation'
 import { DailyMenuMapper } from '@/infrastructure/database/postgresql/mappers/daily-menu-mapper'
 import { dailyMenuDishes, dailyMenus } from '@/infrastructure/database/postgresql/schema'
 
@@ -50,7 +50,7 @@ export class PgDailyMenuRepository implements DailyMenuRepository {
         await tx.insert(dailyMenuDishes).values(persistence.dishes)
       })
     } catch (error) {
-      if (error instanceof Error && isUniqueViolation(error, DATE_UNIQUE)) {
+      if (error instanceof Error && violatesConstraint(error, DATE_UNIQUE)) {
         throw new DailyMenuDateTakenError(dailyMenu.date.toString())
       }
 

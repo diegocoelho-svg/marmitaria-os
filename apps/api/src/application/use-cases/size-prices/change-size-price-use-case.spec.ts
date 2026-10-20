@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { ChangeSizePriceUseCase } from '@/application/use-cases/size-prices/change-size-price-use-case'
 import { SizePriceZeroPriceError } from '@/domain/errors/size-price-zero-price.error'
-import { fakeRepositories, type FakeRepositories } from '@test/fakes/fake-repositories'
+import { SizePriceEntity } from '@/domain/entities/size-price-entity'
+import {
+  FakeSizePriceRepository,
+  fakeRepositories,
+  type FakeRepositories,
+} from '@test/fakes/fake-repositories'
 import { FakeClock, FakeUnitOfWork, SequentialIdGenerator } from '@test/fakes/fake-services'
 
 describe('ChangeSizePriceUseCase', () => {
@@ -66,6 +71,38 @@ describe('ChangeSizePriceUseCase', () => {
     )
     expect(await repositories.sizePrices.findOpenBySize('small')).toMatchObject({
       price: { cents: 1500 },
+    })
+  })
+
+  it('keeps the current price open when the new one cannot be stored', async () => {
+    class RejectingSizePriceRepository extends FakeSizePriceRepository {
+      rejectCreates = false
+
+      override async create(price: SizePriceEntity) {
+        if (this.rejectCreates) {
+          throw new Error('insert failed')
+        }
+
+        await super.create(price)
+      }
+    }
+    const sizePrices = new RejectingSizePriceRepository()
+    const fakes = { ...fakeRepositories(), sizePrices }
+    const failing = new ChangeSizePriceUseCase(
+      new FakeUnitOfWork(fakes),
+      clock,
+      new SequentialIdGenerator(),
+    )
+    await failing.execute({ size: 'medium', priceCents: 2000 })
+    clock.set('2026-10-17T15:00:00Z')
+    sizePrices.rejectCreates = true
+
+    await expect(failing.execute({ size: 'medium', priceCents: 2200 })).rejects.toThrow(
+      'insert failed',
+    )
+    expect(await sizePrices.findOpenBySize('medium')).toMatchObject({
+      price: { cents: 2000 },
+      validTo: null,
     })
   })
 })

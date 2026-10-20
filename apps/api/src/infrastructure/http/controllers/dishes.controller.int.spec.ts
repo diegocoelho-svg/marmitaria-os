@@ -35,6 +35,18 @@ describe('/api/dishes', () => {
     expect(list.json()).toMatchObject([{ name: 'Bife acebolado' }, { name: 'Frango grelhado' }])
   })
 
+  it('finds a dish by its id in uppercase', async () => {
+    const frango = await create({ name: 'Frango grelhado' })
+
+    const response = await app.inject({
+      method: 'GET',
+      url: `/api/dishes/${frango.id.toUpperCase()}`,
+    })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.json()).toEqual(frango)
+  })
+
   it('updates only the informed fields', async () => {
     const frango = await create({ name: 'Frango grelhado', description: 'Com legumes' })
 

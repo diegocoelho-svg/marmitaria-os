@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
+import { SizePriceConflictError } from '@/application/errors/size-price-conflict.error'
 import { SizePriceEntity } from '@/domain/entities/size-price-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import { MoneyVO } from '@/domain/value-objects/money-vo'
 import type { Size } from '@/domain/value-objects/size'
 import { PgSizePriceRepository } from '@/infrastructure/database/postgresql/pg-size-price-repository'
-import { present, violates } from '@test/integration/fixtures'
+import { present } from '@test/integration/fixtures'
 import { useTestDatabase } from '@test/integration/test-database'
 
 describe('PgSizePriceRepository', () => {
@@ -47,16 +48,16 @@ describe('PgSizePriceRepository', () => {
   it('rejects a second open price for the same size', async () => {
     await repository.create(price('medium', 2500, january))
 
-    await expect(repository.create(price('medium', 2600, march))).rejects.toMatchObject(
-      violates('size_prices_open_size_unique'),
+    await expect(repository.create(price('medium', 2600, march))).rejects.toBeInstanceOf(
+      SizePriceConflictError,
     )
   })
 
   it('rejects overlapping validity periods', async () => {
     await repository.create(price('medium', 2000, january, march))
 
-    await expect(repository.create(price('medium', 2500, february))).rejects.toMatchObject(
-      violates('size_prices_no_overlap'),
+    await expect(repository.create(price('medium', 2500, february))).rejects.toBeInstanceOf(
+      SizePriceConflictError,
     )
   })
 

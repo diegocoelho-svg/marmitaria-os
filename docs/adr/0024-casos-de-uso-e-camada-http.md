@@ -54,11 +54,15 @@ Os erros da aplicação ficam em `application/errors`, um arquivo por erro, este
 `NotFoundError`, `ConflictError` ou `BusinessRuleError`. As regras entre agregados são
 verificadas no caso de uso e, numa corrida, o repositório traduz a violação da constraint
 para o mesmo erro: nome de cardápio ativo repetido vira `MenuNameTakenError` e data repetida
-vira `DailyMenuDateTakenError`. Isso ajusta o 0023, que deixava toda violação subir como
-erro do driver.
+vira `DailyMenuDateTakenError`. Duas trocas simultâneas do preço de um tamanho violam a
+vigência única e viram `SizePriceConflictError`. Isso ajusta o 0023, que deixava toda
+violação subir como erro do driver.
+
+Ids nos contratos de entrada são normalizados para minúsculas, como o Postgres os devolve.
 
 **Testes.** Casos de uso com repositórios em memória (`test/fakes`), que guardam cópias das
-entidades, como o banco. Rotas com `app.inject` contra o Postgres real.
+entidades, como o banco, e desfazem as gravações quando o trabalho da `UnitOfWork` falha.
+Rotas com `app.inject` contra o Postgres real.
 
 ## Alternativas consideradas
 

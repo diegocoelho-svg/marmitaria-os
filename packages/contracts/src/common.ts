@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+export const uuidSchema = z.uuid().transform((value) => value.toLowerCase())
+
 export const idParamsSchema = z.object({
-  id: z.uuid(),
+  id: uuidSchema,
 })
 
 export const localDateSchema = z.iso.date()

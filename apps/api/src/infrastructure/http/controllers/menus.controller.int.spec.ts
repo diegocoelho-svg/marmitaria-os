@@ -41,6 +41,13 @@ describe('/api/menus', () => {
     expect(list.json()).toEqual([edited.json()])
   })
 
+  it('accepts dish ids in uppercase', async () => {
+    const created = await createMenu('Cardápio A', [frango.toUpperCase()])
+
+    expect(created.statusCode).toBe(201)
+    expect(created.json()).toMatchObject({ dishIds: [frango] })
+  })
+
   it('archives a menu, hides it from the list and frees its name', async () => {
     const menu = menuSchema.parse((await createMenu('Cardápio A', [frango])).json())
 

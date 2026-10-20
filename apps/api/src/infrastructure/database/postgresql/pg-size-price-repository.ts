@@ -1,11 +1,15 @@
 import { and, eq, gt, isNull, lte, or } from 'drizzle-orm'
+import { SizePriceConflictError } from '@/application/errors/size-price-conflict.error'
 import type { SizePriceEntity } from '@/domain/entities/size-price-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import type { SizePriceRepository } from '@/domain/repositories/size-price-repository'
 import type { Size } from '@/domain/value-objects/size'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
+import { violatesConstraint } from '@/infrastructure/database/postgresql/errors/constraint-violation'
 import { SizePriceMapper } from '@/infrastructure/database/postgresql/mappers/size-price-mapper'
 import { sizePrices } from '@/infrastructure/database/postgresql/schema'
+
+const PERIOD_CONSTRAINTS = ['size_prices_open_size_unique', 'size_prices_no_overlap']
 
 export class PgSizePriceRepository implements SizePriceRepository {
   constructor(private readonly db: DrizzleExecutor) {}
@@ -35,7 +39,18 @@ export class PgSizePriceRepository implements SizePriceRepository {
   }
 
   async create(price: SizePriceEntity): Promise<void> {
-    await this.db.insert(sizePrices).values(SizePriceMapper.toPersistence(price))
+    try {
+      await this.db.insert(sizePrices).values(SizePriceMapper.toPersistence(price))
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        PERIOD_CONSTRAINTS.some((constraint) => violatesConstraint(error, constraint))
+      ) {
+        throw new SizePriceConflictError(price.size)
+      }
+
+      throw error
+    }
   }
 
   async close(price: SizePriceEntity): Promise<void> {

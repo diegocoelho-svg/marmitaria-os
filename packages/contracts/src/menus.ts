@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { uuidSchema } from './common'
 
 export const menuSchema = z.object({
   id: z.uuid(),
@@ -9,12 +10,12 @@ export const menuSchema = z.object({
 
 export const createMenuBodySchema = z.object({
   name: z.string(),
-  dishIds: z.array(z.uuid()),
+  dishIds: z.array(uuidSchema),
 })
 
 export const updateMenuBodySchema = z.object({
   name: z.string().optional(),
-  dishIds: z.array(z.uuid()).optional(),
+  dishIds: z.array(uuidSchema).optional(),
 })
 
 export type Menu = z.infer<typeof menuSchema>

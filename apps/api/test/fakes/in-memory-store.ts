@@ -13,6 +13,15 @@ export class InMemoryStore<T extends { id: string }> {
     return [...this.records.values()].map((record) => this.copy(record))
   }
 
+  checkpoint(): () => void {
+    const saved = new Map(this.records)
+
+    return () => {
+      this.records.clear()
+      saved.forEach((record, id) => this.records.set(id, record))
+    }
+  }
+
   insert(entity: T): void {
     if (this.records.has(entity.id)) {
       throw new Error(`Record ${entity.id} already exists`)

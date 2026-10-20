@@ -2,6 +2,7 @@ import type { Clock } from '@/application/ports/clock'
 import type { ApplicationEvent, EventBus } from '@/application/ports/event-bus'
 import type { IdGenerator } from '@/application/ports/id-generator'
 import type { Repositories, UnitOfWork } from '@/application/ports/unit-of-work'
+import type { FakeRepositories } from '@test/fakes/fake-repositories'
 
 export class FakeClock implements Clock {
   constructor(private current = new Date('2026-10-17T15:00:00Z')) {}
@@ -34,9 +35,18 @@ export class RecordingEventBus implements EventBus {
 }
 
 export class FakeUnitOfWork implements UnitOfWork {
-  constructor(private readonly repositories: Repositories) {}
+  constructor(private readonly repositories: FakeRepositories & Repositories) {}
 
-  run<T>(work: (repositories: Repositories) => Promise<T>): Promise<T> {
-    return work(this.repositories)
+  async run<T>(work: (repositories: Repositories) => Promise<T>): Promise<T> {
+    const rollbacks = Object.values(this.repositories).map((repository) =>
+      repository.store.checkpoint(),
+    )
+
+    try {
+      return await work(this.repositories)
+    } catch (error) {
+      rollbacks.forEach((rollback) => rollback())
+      throw error
+    }
   }
 }

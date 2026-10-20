@@ -66,7 +66,7 @@ export function setupUseCases({
       list: new ListDailyMenusUseCase(dailyMenus),
       today: new GetTodayDailyMenuUseCase(dailyMenus, clock),
       get: new GetDailyMenuUseCase(dailyMenus),
-      applyMenu: new ApplyMenuUseCase(dailyMenus, menus, clock, ids, eventBus),
+      applyMenu: new ApplyMenuUseCase(dailyMenus, menus, dishes, clock, ids, eventBus),
       setDishes: new SetDailyMenuDishesUseCase(dailyMenus, dishes, clock, eventBus),
     },
   }

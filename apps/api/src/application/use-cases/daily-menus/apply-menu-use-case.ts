@@ -4,8 +4,10 @@ import { MenuNotFoundError } from '@/application/errors/menu-not-found.error'
 import type { Clock } from '@/application/ports/clock'
 import type { EventBus } from '@/application/ports/event-bus'
 import type { IdGenerator } from '@/application/ports/id-generator'
+import { ensureDishesAvailable } from '@/application/services/ensure-dishes-available'
 import { DailyMenuEntity } from '@/domain/entities/daily-menu-entity'
 import type { DailyMenuRepository } from '@/domain/repositories/daily-menu-repository'
+import type { DishRepository } from '@/domain/repositories/dish-repository'
 import type { MenuRepository } from '@/domain/repositories/menu-repository'
 import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 
@@ -13,6 +15,7 @@ export class ApplyMenuUseCase {
   constructor(
     private readonly dailyMenus: DailyMenuRepository,
     private readonly menus: MenuRepository,
+    private readonly dishes: DishRepository,
     private readonly clock: Clock,
     private readonly ids: IdGenerator,
     private readonly eventBus: EventBus,
@@ -28,14 +31,17 @@ export class ApplyMenuUseCase {
     }
 
     const existing = await this.dailyMenus.findByDate(date)
-    let dailyMenu: DailyMenuEntity
+    const dailyMenu = existing ?? DailyMenuEntity.fromMenu({ id: this.ids.next(), date, menu, now })
 
     if (existing) {
       existing.applyMenu(menu, now)
-      await this.dailyMenus.update(existing)
-      dailyMenu = existing
+    }
+
+    await ensureDishesAvailable(this.dishes, dailyMenu.dishIds)
+
+    if (existing) {
+      await this.dailyMenus.update(dailyMenu)
     } else {
-      dailyMenu = DailyMenuEntity.fromMenu({ id: this.ids.next(), date, menu, now })
       await this.dailyMenus.create(dailyMenu)
     }
 

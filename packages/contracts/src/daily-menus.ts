@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { localDateSchema } from './common'
+import { localDateSchema, uuidSchema } from './common'
 
 export const dailyMenuSchema = z.object({
   id: z.uuid(),
@@ -23,11 +23,11 @@ export const listDailyMenusQuerySchema = z
   })
 
 export const applyMenuBodySchema = z.object({
-  menuId: z.uuid(),
+  menuId: uuidSchema,
 })
 
 export const setDailyMenuDishesBodySchema = z.object({
-  dishIds: z.array(z.uuid()),
+  dishIds: z.array(uuidSchema),
 })
 
 export type DailyMenu = z.infer<typeof dailyMenuSchema>

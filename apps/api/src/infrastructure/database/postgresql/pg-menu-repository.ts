@@ -4,7 +4,7 @@ import type { MenuEntity } from '@/domain/entities/menu-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import type { MenuRepository } from '@/domain/repositories/menu-repository'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
-import { isUniqueViolation } from '@/infrastructure/database/postgresql/errors/unique-violation'
+import { violatesConstraint } from '@/infrastructure/database/postgresql/errors/constraint-violation'
 import { MenuMapper } from '@/infrastructure/database/postgresql/mappers/menu-mapper'
 import { menuDishes, menus } from '@/infrastructure/database/postgresql/schema'
 
@@ -57,7 +57,7 @@ export class PgMenuRepository implements MenuRepository {
         await tx.insert(menuDishes).values(persistence.dishes)
       })
     } catch (error) {
-      if (error instanceof Error && isUniqueViolation(error, ACTIVE_NAME_UNIQUE)) {
+      if (error instanceof Error && violatesConstraint(error, ACTIVE_NAME_UNIQUE)) {
         throw new MenuNameTakenError(menu.name)
       }
 
@@ -85,7 +85,7 @@ export class PgMenuRepository implements MenuRepository {
         await tx.insert(menuDishes).values(dishes)
       })
     } catch (error) {
-      if (error instanceof Error && isUniqueViolation(error, ACTIVE_NAME_UNIQUE)) {
+      if (error instanceof Error && violatesConstraint(error, ACTIVE_NAME_UNIQUE)) {
         throw new MenuNameTakenError(menu.name)
       }
 
