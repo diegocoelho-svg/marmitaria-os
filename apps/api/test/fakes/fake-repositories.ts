@@ -14,9 +14,11 @@ import type { DishRepository } from '@/domain/repositories/dish-repository'
 import type { MenuRepository } from '@/domain/repositories/menu-repository'
 import type { OrderRepository } from '@/domain/repositories/order-repository'
 import type { SizePriceRepository } from '@/domain/repositories/size-price-repository'
+import type { TicketCounterRepository } from '@/domain/repositories/ticket-counter-repository'
 import type { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import type { OrderStatus } from '@/domain/value-objects/order-status'
 import type { Size } from '@/domain/value-objects/size'
+import { TicketNumberVO } from '@/domain/value-objects/ticket-number-vo'
 import { InMemoryStore } from '@test/fakes/in-memory-store'
 
 const byName = (a: string, b: string) => a.localeCompare(b)
@@ -243,6 +245,25 @@ export class FakeOrderRepository implements OrderRepository {
   }
 }
 
+type TicketCounter = { id: string; last: number }
+
+export class FakeTicketCounterRepository implements TicketCounterRepository {
+  readonly store = new InMemoryStore<TicketCounter>((counter) => ({ ...counter }))
+
+  async next(businessDate: LocalDateVO) {
+    const current = this.store.get(businessDate.toString())
+    const counter = { id: businessDate.toString(), last: (current?.last ?? 0) + 1 }
+
+    if (current) {
+      this.store.replace(counter)
+    } else {
+      this.store.insert(counter)
+    }
+
+    return TicketNumberVO.of(counter.last)
+  }
+}
+
 export type FakeRepositories = {
   dishes: FakeDishRepository
   adjustments: FakeAdjustmentRepository
@@ -250,6 +271,7 @@ export type FakeRepositories = {
   menus: FakeMenuRepository
   dailyMenus: FakeDailyMenuRepository
   orders: FakeOrderRepository
+  tickets: FakeTicketCounterRepository
 }
 
 export function fakeRepositories(): FakeRepositories & Repositories {
@@ -260,5 +282,6 @@ export function fakeRepositories(): FakeRepositories & Repositories {
     menus: new FakeMenuRepository(),
     dailyMenus: new FakeDailyMenuRepository(),
     orders: new FakeOrderRepository(),
+    tickets: new FakeTicketCounterRepository(),
   }
 }
