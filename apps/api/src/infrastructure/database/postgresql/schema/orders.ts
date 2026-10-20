@@ -12,6 +12,7 @@ import {
   unique,
   uuid,
 } from 'drizzle-orm/pg-core'
+import { adjustments } from '@/infrastructure/database/postgresql/schema/adjustments'
 import { dishes } from '@/infrastructure/database/postgresql/schema/dishes'
 import {
   orderOriginEnum,
@@ -70,7 +71,9 @@ export const orderItemAdjustments = pgTable(
     orderId: uuid('order_id').notNull(),
     itemPosition: integer('item_position').notNull(),
     position: integer('position').notNull(),
-    adjustmentId: uuid('adjustment_id').notNull(),
+    adjustmentId: uuid('adjustment_id')
+      .notNull()
+      .references(() => adjustments.id),
     label: text('label').notNull(),
   },
   (table) => [

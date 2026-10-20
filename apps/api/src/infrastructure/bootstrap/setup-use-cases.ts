@@ -19,6 +19,9 @@ import { CreateMenuUseCase } from '@/application/use-cases/menus/create-menu-use
 import { GetMenuUseCase } from '@/application/use-cases/menus/get-menu-use-case'
 import { ListMenusUseCase } from '@/application/use-cases/menus/list-menus-use-case'
 import { UpdateMenuUseCase } from '@/application/use-cases/menus/update-menu-use-case'
+import { ChangeOrderStatusUseCase } from '@/application/use-cases/orders/change-order-status-use-case'
+import { CreateOrderUseCase } from '@/application/use-cases/orders/create-order-use-case'
+import { GetOrderUseCase } from '@/application/use-cases/orders/get-order-use-case'
 import { ChangeSizePriceUseCase } from '@/application/use-cases/size-prices/change-size-price-use-case'
 import { ListSizePricesUseCase } from '@/application/use-cases/size-prices/list-size-prices-use-case'
 
@@ -37,7 +40,7 @@ export function setupUseCases({
   ids,
   eventBus,
 }: UseCaseDependencies) {
-  const { dishes, adjustments, sizePrices, menus, dailyMenus } = repositories
+  const { dishes, adjustments, sizePrices, menus, dailyMenus, orders } = repositories
 
   return {
     dishes: {
@@ -68,6 +71,11 @@ export function setupUseCases({
       get: new GetDailyMenuUseCase(dailyMenus),
       applyMenu: new ApplyMenuUseCase(dailyMenus, menus, dishes, clock, ids, eventBus),
       setDishes: new SetDailyMenuDishesUseCase(dailyMenus, dishes, clock, eventBus),
+    },
+    orders: {
+      get: new GetOrderUseCase(orders),
+      create: new CreateOrderUseCase(unitOfWork, clock, ids, eventBus),
+      changeStatus: new ChangeOrderStatusUseCase(orders, clock, eventBus),
     },
   }
 }

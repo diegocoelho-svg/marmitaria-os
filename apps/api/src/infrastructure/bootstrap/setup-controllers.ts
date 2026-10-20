@@ -4,6 +4,7 @@ import { DailyMenusController } from '@/infrastructure/http/controllers/daily-me
 import { DishesController } from '@/infrastructure/http/controllers/dishes.controller'
 import { HealthController } from '@/infrastructure/http/controllers/health.controller'
 import { MenusController } from '@/infrastructure/http/controllers/menus.controller'
+import { OrdersController } from '@/infrastructure/http/controllers/orders.controller'
 import { SizePricesController } from '@/infrastructure/http/controllers/size-prices.controller'
 
 export function setupControllers({
@@ -12,6 +13,7 @@ export function setupControllers({
   sizePrices,
   menus,
   dailyMenus,
+  orders,
 }: UseCases): object[] {
   return [
     new HealthController(),
@@ -26,5 +28,6 @@ export function setupControllers({
       dailyMenus.applyMenu,
       dailyMenus.setDishes,
     ),
+    new OrdersController(orders.get, orders.create, orders.changeStatus),
   ]
 }

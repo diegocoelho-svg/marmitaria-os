@@ -28,6 +28,7 @@ Decisões de arquitetura do marmitaria-os. Formato: [`0000-template.md`](./0000-
 | [0022](./0022-regras-do-modelo-de-dominio.md) | Regras do modelo de domínio | Aceito |
 | [0023](./0023-estrutura-da-api-e-persistencia.md) | Estrutura de pastas da API e persistência com Drizzle (ajusta 0006) | Aceito |
 | [0024](./0024-casos-de-uso-e-camada-http.md) | Casos de uso, camada HTTP e erros da API (ajusta 0023) | Aceito |
+| [0025](./0025-pedidos-e-senha-diaria.md) | Pedidos e senha diária sem buracos | Aceito |
 
 ## Em aberto
 

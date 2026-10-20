@@ -11,7 +11,7 @@ import { TicketNumberVO } from '@/domain/value-objects/ticket-number-vo'
 import { CorruptedRecordError } from '@/infrastructure/database/postgresql/errors/corrupted-record.error'
 import { PgOrderRepository } from '@/infrastructure/database/postgresql/pg-order-repository'
 import { orders } from '@/infrastructure/database/postgresql/schema'
-import { present, seedDish, violates } from '@test/integration/fixtures'
+import { present, seedAdjustment, seedDish, violates } from '@test/integration/fixtures'
 import { useTestDatabase } from '@test/integration/test-database'
 
 describe('PgOrderRepository', () => {
@@ -64,8 +64,11 @@ describe('PgOrderRepository', () => {
           unitPrice: MoneyVO.fromCents(3200),
           quantity: 2,
           adjustments: [
-            { adjustmentId: randomUUID(), label: 'Sem cebola' },
-            { adjustmentId: randomUUID(), label: 'Farofa → salada' },
+            { adjustmentId: await seedAdjustment(db, 'Sem cebola'), label: 'Sem cebola' },
+            {
+              adjustmentId: await seedAdjustment(db, 'Farofa → salada'),
+              label: 'Farofa → salada',
+            },
           ],
           note: 'Bem passado',
         }),
