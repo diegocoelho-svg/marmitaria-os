@@ -3,6 +3,7 @@ import { OrderNotFoundError } from '@/application/errors/order-not-found.error'
 import { ChangeOrderStatusUseCase } from '@/application/use-cases/orders/change-order-status-use-case'
 import { OrderEntity } from '@/domain/entities/order-entity'
 import { OrderInvalidTransitionError } from '@/domain/errors/order-invalid-transition.error'
+import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import { MoneyVO } from '@/domain/value-objects/money-vo'
 import { OrderItemVO } from '@/domain/value-objects/order-item-vo'
@@ -76,6 +77,18 @@ describe('ChangeOrderStatusUseCase', () => {
       OrderInvalidTransitionError,
     )
     expect(eventBus.published).toEqual([])
+  })
+
+  it('publishes only the transition that wins a concurrent change', async () => {
+    const [started, cancelled] = await Promise.allSettled([
+      useCase.execute({ id: 'order-1', status: 'preparing' }),
+      useCase.execute({ id: 'order-1', status: 'cancelled' }),
+    ])
+
+    expect(started).toMatchObject({ status: 'fulfilled', value: { status: 'preparing' } })
+    expect(cancelled).toMatchObject({ status: 'rejected', reason: expect.any(StaleWriteError) })
+    expect(eventBus.published.map((event) => event.type)).toEqual(['order.started'])
+    expect(await orders.findById('order-1')).toMatchObject({ status: 'preparing' })
   })
 
   it('rejects an unknown order', async () => {
