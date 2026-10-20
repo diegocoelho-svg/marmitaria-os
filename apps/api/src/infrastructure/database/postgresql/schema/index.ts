@@ -1,3 +1,4 @@
+export * from '@/infrastructure/database/postgresql/schema/adjustments'
 export * from '@/infrastructure/database/postgresql/schema/daily-menus'
 export * from '@/infrastructure/database/postgresql/schema/dishes'
 export * from '@/infrastructure/database/postgresql/schema/enums'

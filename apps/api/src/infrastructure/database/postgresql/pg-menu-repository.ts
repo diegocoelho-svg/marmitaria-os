@@ -1,10 +1,14 @@
 import { and, asc, eq, isNull, ne } from 'drizzle-orm'
+import { MenuNameTakenError } from '@/application/errors/menu-name-taken.error'
 import type { MenuEntity } from '@/domain/entities/menu-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import type { MenuRepository } from '@/domain/repositories/menu-repository'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
+import { violatesConstraint } from '@/infrastructure/database/postgresql/errors/constraint-violation'
 import { MenuMapper } from '@/infrastructure/database/postgresql/mappers/menu-mapper'
 import { menuDishes, menus } from '@/infrastructure/database/postgresql/schema'
+
+const ACTIVE_NAME_UNIQUE = 'menus_active_name_key_unique'
 
 export class PgMenuRepository implements MenuRepository {
   constructor(private readonly db: DrizzleExecutor) {}
@@ -47,29 +51,45 @@ export class PgMenuRepository implements MenuRepository {
   async create(menu: MenuEntity): Promise<void> {
     const persistence = MenuMapper.toPersistence(menu)
 
-    await this.db.transaction(async (tx) => {
-      await tx.insert(menus).values(persistence.menu)
-      await tx.insert(menuDishes).values(persistence.dishes)
-    })
+    try {
+      await this.db.transaction(async (tx) => {
+        await tx.insert(menus).values(persistence.menu)
+        await tx.insert(menuDishes).values(persistence.dishes)
+      })
+    } catch (error) {
+      if (error instanceof Error && violatesConstraint(error, ACTIVE_NAME_UNIQUE)) {
+        throw new MenuNameTakenError(menu.name)
+      }
+
+      throw error
+    }
   }
 
   async update(menu: MenuEntity): Promise<void> {
     const { menu: row, dishes } = MenuMapper.toPersistence(menu)
     const { id, ...changes } = row
 
-    await this.db.transaction(async (tx) => {
-      const updated = await tx
-        .update(menus)
-        .set(changes)
-        .where(and(eq(menus.id, id), isNull(menus.archivedAt)))
-        .returning({ id: menus.id })
+    try {
+      await this.db.transaction(async (tx) => {
+        const updated = await tx
+          .update(menus)
+          .set(changes)
+          .where(and(eq(menus.id, id), isNull(menus.archivedAt)))
+          .returning({ id: menus.id })
 
-      if (updated.length === 0) {
-        throw new StaleWriteError('Menu', id)
+        if (updated.length === 0) {
+          throw new StaleWriteError('Menu', id)
+        }
+
+        await tx.delete(menuDishes).where(eq(menuDishes.menuId, id))
+        await tx.insert(menuDishes).values(dishes)
+      })
+    } catch (error) {
+      if (error instanceof Error && violatesConstraint(error, ACTIVE_NAME_UNIQUE)) {
+        throw new MenuNameTakenError(menu.name)
       }
 
-      await tx.delete(menuDishes).where(eq(menuDishes.menuId, id))
-      await tx.insert(menuDishes).values(dishes)
-    })
+      throw error
+    }
   }
 }

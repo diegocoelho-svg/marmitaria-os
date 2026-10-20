@@ -1,9 +1,10 @@
 import { healthResponseSchema } from '@marmitaria/contracts'
 import { afterAll, describe, expect, it } from 'vitest'
 import { buildApp } from '@/infrastructure/http/app'
+import { HealthController } from '@/infrastructure/http/controllers/health.controller'
 
 describe('GET /api/health', () => {
-  const app = buildApp()
+  const app = buildApp({ controllers: [new HealthController()] })
 
   afterAll(() => app.close())
 

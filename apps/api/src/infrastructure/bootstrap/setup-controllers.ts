@@ -1,0 +1,30 @@
+import type { UseCases } from '@/infrastructure/bootstrap/setup-use-cases'
+import { AdjustmentsController } from '@/infrastructure/http/controllers/adjustments.controller'
+import { DailyMenusController } from '@/infrastructure/http/controllers/daily-menus.controller'
+import { DishesController } from '@/infrastructure/http/controllers/dishes.controller'
+import { HealthController } from '@/infrastructure/http/controllers/health.controller'
+import { MenusController } from '@/infrastructure/http/controllers/menus.controller'
+import { SizePricesController } from '@/infrastructure/http/controllers/size-prices.controller'
+
+export function setupControllers({
+  dishes,
+  adjustments,
+  sizePrices,
+  menus,
+  dailyMenus,
+}: UseCases): object[] {
+  return [
+    new HealthController(),
+    new DishesController(dishes.list, dishes.get, dishes.create, dishes.update),
+    new AdjustmentsController(adjustments.list, adjustments.create, adjustments.update),
+    new SizePricesController(sizePrices.list, sizePrices.change),
+    new MenusController(menus.list, menus.get, menus.create, menus.update, menus.archive),
+    new DailyMenusController(
+      dailyMenus.list,
+      dailyMenus.today,
+      dailyMenus.get,
+      dailyMenus.applyMenu,
+      dailyMenus.setDishes,
+    ),
+  ]
+}

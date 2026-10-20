@@ -1,10 +1,29 @@
 import Fastify, { type FastifyServerOptions } from 'fastify'
-import { healthRoutes } from '@/infrastructure/http/routes/health'
+import {
+  serializerCompiler,
+  validatorCompiler,
+  type ZodTypeProvider,
+} from 'fastify-type-provider-zod'
+import { registerControllers } from '@/infrastructure/http/decorators/route-registry'
+import { setupErrorHandling } from '@/infrastructure/http/error-handler'
 
-export function buildApp(options: FastifyServerOptions = {}) {
-  const app = Fastify(options)
+export type AppOptions = FastifyServerOptions & {
+  controllers: readonly object[]
+}
 
-  app.register(healthRoutes, { prefix: '/api' })
+export function buildApp({ controllers, ...options }: AppOptions) {
+  const app = Fastify(options).withTypeProvider<ZodTypeProvider>()
+
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
+  setupErrorHandling(app)
+
+  app.register(
+    async (api) => {
+      registerControllers(api.withTypeProvider<ZodTypeProvider>(), controllers)
+    },
+    { prefix: '/api' },
+  )
 
   return app
 }

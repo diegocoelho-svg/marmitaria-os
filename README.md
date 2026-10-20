@@ -155,15 +155,34 @@ flowchart LR
 ```
 
 - **domain** — entidades (`OrderEntity` com máquina de estados, `MenuEntity`,
-  `DailyMenuEntity`, `DishEntity`, `SizePriceEntity`), value objects (`MoneyVO`, `LocalDateVO`,
-  `OrderItemVO`…), eventos, erros e interfaces de repositório, sem nenhuma dependência externa.
-- **application** — casos de uso como `CreateOrder`, `AdvanceOrderStatus` e `PublishDailyMenu`.
-- **infrastructure** — HTTP, configuração, banco (schema Drizzle, mappers e repositórios
-  `Pg*`), composição e, em breve, tempo real e adaptadores do event bus.
+  `DailyMenuEntity`, `DishEntity`, `AdjustmentEntity`, `SizePriceEntity`), value objects
+  (`MoneyVO`, `LocalDateVO`, `OrderItemVO`…), eventos, erros e interfaces de repositório, sem
+  nenhuma dependência externa.
+- **application** — casos de uso (`CreateMenuUseCase`, `ChangeSizePriceUseCase`,
+  `ApplyMenuUseCase`…), DTOs, erros e portas (`Clock`, `IdGenerator`, `UnitOfWork`,
+  `EventBus`).
+- **infrastructure** — controllers HTTP com decorators tipados, configuração, banco (schema
+  Drizzle, mappers e repositórios `Pg*`), event bus em memória, composição e, em breve, tempo
+  real.
 
 A estrutura de pastas está no [0023](./docs/adr/0023-estrutura-da-api-e-persistencia.md):
 imports com o alias `@/`, testes `*.spec.ts` ao lado do código e testes de integração
-`*.int.spec.ts` contra um Postgres real.
+`*.int.spec.ts` contra um Postgres real. Casos de uso, rotas e erros seguem o
+[0024](./docs/adr/0024-casos-de-uso-e-camada-http.md).
+
+### API
+
+Todas as rotas ficam sob `/api` e validam entrada e saída com os contratos de
+`packages/contracts`. Erros respondem `{ code, message }`.
+
+| Recurso | Rotas |
+|---|---|
+| Pratos | `GET/POST /dishes`, `GET/PATCH /dishes/:id` |
+| Ajustes rápidos | `GET/POST /adjustments`, `PATCH /adjustments/:id` |
+| Preços por tamanho | `GET /size-prices`, `PUT /size-prices/:size` |
+| Cardápios | `GET/POST /menus`, `GET/PATCH /menus/:id`, `POST /menus/:id/archive` |
+| Cardápio do dia | `GET /daily-menus?from&to`, `GET /daily-menus/today`, `GET/PUT /daily-menus/:date`, `PUT /daily-menus/:date/dishes` |
+| Saúde | `GET /health` |
 
 ### Infraestrutura agnóstica
 

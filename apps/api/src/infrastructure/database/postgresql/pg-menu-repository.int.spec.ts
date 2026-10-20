@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { MenuNameTakenError } from '@/application/errors/menu-name-taken.error'
 import { MenuEntity } from '@/domain/entities/menu-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import { PgMenuRepository } from '@/infrastructure/database/postgresql/pg-menu-repository'
@@ -61,9 +62,16 @@ describe('PgMenuRepository', () => {
   it('rejects an active menu whose name is Unicode-equivalent to another', async () => {
     await repository.create(menu('Café'))
 
-    await expect(repository.create(menu('CAFÉ'))).rejects.toMatchObject(
-      violates('menus_active_name_key_unique'),
-    )
+    await expect(repository.create(menu('CAFÉ'))).rejects.toBeInstanceOf(MenuNameTakenError)
+  })
+
+  it('rejects renaming a menu to the name of another active menu', async () => {
+    const cardapioB = menu('Cardápio B')
+    await repository.create(menu('Cardápio A'))
+    await repository.create(cardapioB)
+    cardapioB.rename('cardápio a')
+
+    await expect(repository.update(cardapioB)).rejects.toBeInstanceOf(MenuNameTakenError)
   })
 
   it('accepts the name of an archived menu', async () => {

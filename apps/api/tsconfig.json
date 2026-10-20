@@ -2,6 +2,7 @@
   "extends": "@marmitaria/config/tsconfig.base.json",
   "compilerOptions": {
     "types": ["node"],
+    "experimentalDecorators": true,
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
