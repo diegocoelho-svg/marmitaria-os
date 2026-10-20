@@ -140,6 +140,14 @@ describe('/api/events', () => {
     expect(frame.event).toBe('reset')
   })
 
+  it('answers HEAD with the stream headers without opening a stream', async () => {
+    const response = await app.inject({ method: 'HEAD', url: '/api/events' })
+
+    expect(response.statusCode).toBe(200)
+    expect(response.headers['content-type']).toBe('text/event-stream; charset=utf-8')
+    expect(response.body).toBe('')
+  })
+
   it('ends the open streams when the server closes', async () => {
     const stream = await openStream()
     await stream.next()

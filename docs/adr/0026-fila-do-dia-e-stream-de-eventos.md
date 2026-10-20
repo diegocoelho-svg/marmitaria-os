@@ -39,6 +39,12 @@ válido.
 **Conexão.** Comentário `: ping` a cada 15 s enquanto houver tela conectada, cabeçalhos
 `cache-control: no-cache, no-transform` e `x-accel-buffering: no`. No desligamento, o hook
 `preClose` encerra os streams para o servidor não esperar conexões que não terminam.
+`HEAD /api/events` responde só os cabeçalhos.
+
+**Tela lenta.** Quando a conexão de uma tela não dá vazão, as mensagens dela esperam numa
+fila própria de até 500 itens. Se a fila estourar ou a conexão não esvaziar em 15 s, o
+servidor derruba só essa conexão; a tela reconecta com o cursor e recebe o que perdeu ou um
+`reset`. As outras telas e a publicação dos eventos não esperam por ela.
 
 ## Alternativas consideradas
 
