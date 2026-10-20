@@ -27,3 +27,5 @@ export function buildApp({ controllers, ...options }: AppOptions) {
 
   return app
 }
+
+export type App = ReturnType<typeof buildApp>

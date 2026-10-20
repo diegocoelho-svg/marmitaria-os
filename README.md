@@ -182,7 +182,8 @@ Todas as rotas ficam sob `/api` e validam entrada e saída com os contratos de
 | Preços por tamanho | `GET /size-prices`, `PUT /size-prices/:size` |
 | Cardápios | `GET/POST /menus`, `GET/PATCH /menus/:id`, `POST /menus/:id/archive` |
 | Cardápio do dia | `GET /daily-menus?from&to`, `GET /daily-menus/today`, `GET/PUT /daily-menus/:date`, `PUT /daily-menus/:date/dishes` |
-| Pedidos | `POST /orders`, `GET /orders/:id`, `PATCH /orders/:id/status` |
+| Pedidos | `GET /orders?date&status`, `POST /orders`, `GET /orders/:id`, `PATCH /orders/:id/status` |
+| Eventos (SSE) | `GET /events` |
 | Saúde | `GET /health` |
 
 ### Infraestrutura agnóstica
@@ -232,7 +233,7 @@ abaixo.
 - [x] Concepção do produto e decisões de arquitetura (ADRs)
 - [x] Esqueleto do monorepo, Docker Compose e CI
 - [x] Domínio: pedido, cardápio e preços (com testes)
-- [ ] API REST + SSE
+- [x] API REST + SSE
 - [ ] Telas de balcão e cozinha
 - [ ] Testes E2E nos 4 viewports
 - [ ] CD e primeiro deploy

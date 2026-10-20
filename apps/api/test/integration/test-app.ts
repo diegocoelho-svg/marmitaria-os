@@ -1,5 +1,5 @@
 import { afterAll } from 'vitest'
-import { cleanup } from '@/infrastructure/bootstrap/lifecycle'
+import { attachLifecycle } from '@/infrastructure/bootstrap/lifecycle'
 import { createContainer } from '@/infrastructure/container/container'
 import { InMemoryEventBus } from '@/infrastructure/events/in-memory-event-bus'
 import { buildApp } from '@/infrastructure/http/app'
@@ -18,10 +18,10 @@ export function useTestApp() {
     services: { clock, ids: new UuidGenerator(), eventBus },
   })
   const app = buildApp({ controllers: container.controllers })
+  attachLifecycle(app, container)
 
   afterAll(async () => {
     await app.close()
-    await cleanup(container)
   })
 
   return { app, db, clock, eventBus }
