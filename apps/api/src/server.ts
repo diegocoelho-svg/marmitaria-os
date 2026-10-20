@@ -1,4 +1,4 @@
-import { cleanup } from '@/infrastructure/bootstrap/lifecycle'
+import { attachLifecycle } from '@/infrastructure/bootstrap/lifecycle'
 import { env } from '@/infrastructure/config/env'
 import { buildLoggerOptions } from '@/infrastructure/config/logger'
 import { createContainer } from '@/infrastructure/container/container'
@@ -25,7 +25,7 @@ container.database.pool.on('error', (error) => {
   app.log.error({ err: error }, 'PostgreSQL idle connection failed')
 })
 
-app.addHook('onClose', () => cleanup(container))
+attachLifecycle(app, container)
 
 process.once('SIGINT', () => app.close())
 process.once('SIGTERM', () => app.close())

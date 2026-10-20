@@ -22,6 +22,7 @@ import { UpdateMenuUseCase } from '@/application/use-cases/menus/update-menu-use
 import { ChangeOrderStatusUseCase } from '@/application/use-cases/orders/change-order-status-use-case'
 import { CreateOrderUseCase } from '@/application/use-cases/orders/create-order-use-case'
 import { GetOrderUseCase } from '@/application/use-cases/orders/get-order-use-case'
+import { ListOrdersUseCase } from '@/application/use-cases/orders/list-orders-use-case'
 import { ChangeSizePriceUseCase } from '@/application/use-cases/size-prices/change-size-price-use-case'
 import { ListSizePricesUseCase } from '@/application/use-cases/size-prices/list-size-prices-use-case'
 
@@ -73,6 +74,7 @@ export function setupUseCases({
       setDishes: new SetDailyMenuDishesUseCase(dailyMenus, dishes, clock, eventBus),
     },
     orders: {
+      list: new ListOrdersUseCase(orders, clock),
       get: new GetOrderUseCase(orders),
       create: new CreateOrderUseCase(unitOfWork, clock, ids, eventBus),
       changeStatus: new ChangeOrderStatusUseCase(orders, clock, eventBus),

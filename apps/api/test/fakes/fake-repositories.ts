@@ -232,6 +232,17 @@ export class FakeOrderRepository implements OrderRepository {
     return this.store.get(id)
   }
 
+  async findByBusinessDate(
+    businessDate: LocalDateVO,
+    statuses?: readonly OrderStatus[] | undefined,
+  ) {
+    return this.store
+      .all()
+      .filter((order) => order.businessDate.equals(businessDate))
+      .filter((order) => !statuses || statuses.includes(order.status))
+      .sort((a, b) => a.ticket.value - b.ticket.value)
+  }
+
   async create(order: OrderEntity) {
     this.store.insert(order)
   }

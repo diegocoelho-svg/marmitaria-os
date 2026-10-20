@@ -83,6 +83,27 @@ describe('PgOrderRepository', () => {
     expect(await repository.findById(complete.id)).toEqual(complete)
   })
 
+  it('lists the orders of a business day by ticket, optionally by status', async () => {
+    const second = order(2, [item(frango, 1), item(bife, 2)])
+    const first = order(1)
+    const nextDay = order(1, undefined, new Date('2026-10-18T15:00:00Z'))
+    await repository.create(second)
+    await repository.create(first)
+    await repository.create(nextDay)
+    second.start(now)
+    await repository.update(second, 'received')
+
+    const all = await repository.findByBusinessDate(LocalDateVO.parse('2026-10-17'))
+    const preparing = await repository.findByBusinessDate(LocalDateVO.parse('2026-10-17'), [
+      'preparing',
+      'ready',
+    ])
+
+    expect(all.map((found) => found.id)).toEqual([first.id, second.id])
+    expect(all[1]?.items.map((found) => found.dishId)).toEqual([frango, bife])
+    expect(preparing.map((found) => found.id)).toEqual([second.id])
+  })
+
   it('returns null for an unknown id', async () => {
     expect(await repository.findById(randomUUID())).toBeNull()
   })

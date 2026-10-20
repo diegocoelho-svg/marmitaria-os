@@ -1,7 +1,8 @@
-import { and, asc, eq } from 'drizzle-orm'
+import { and, asc, eq, inArray } from 'drizzle-orm'
 import type { OrderEntity } from '@/domain/entities/order-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import type { OrderRepository } from '@/domain/repositories/order-repository'
+import type { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import type { OrderStatus } from '@/domain/value-objects/order-status'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
 import { OrderMapper } from '@/infrastructure/database/postgresql/mappers/order-mapper'
@@ -11,21 +12,39 @@ import {
   orders,
 } from '@/infrastructure/database/postgresql/schema'
 
+const withItems = {
+  items: {
+    orderBy: asc(orderItems.position),
+    with: { adjustments: { orderBy: asc(orderItemAdjustments.position) } },
+  },
+}
+
 export class PgOrderRepository implements OrderRepository {
   constructor(private readonly db: DrizzleExecutor) {}
 
   async findById(id: string): Promise<OrderEntity | null> {
     const record = await this.db.query.orders.findFirst({
       where: eq(orders.id, id),
-      with: {
-        items: {
-          orderBy: asc(orderItems.position),
-          with: { adjustments: { orderBy: asc(orderItemAdjustments.position) } },
-        },
-      },
+      with: withItems,
     })
 
     return record ? OrderMapper.fromPersistence(record) : null
+  }
+
+  async findByBusinessDate(
+    businessDate: LocalDateVO,
+    statuses?: readonly OrderStatus[] | undefined,
+  ): Promise<OrderEntity[]> {
+    const records = await this.db.query.orders.findMany({
+      where: and(
+        eq(orders.businessDate, businessDate.toString()),
+        statuses && inArray(orders.status, [...statuses]),
+      ),
+      orderBy: asc(orders.ticket),
+      with: withItems,
+    })
+
+    return records.map((record) => OrderMapper.fromPersistence(record))
   }
 
   async create(order: OrderEntity): Promise<void> {

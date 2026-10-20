@@ -132,6 +132,29 @@ describe('/api/orders', () => {
     expect(accepted.json()).toMatchObject({ ticket: 1 })
   })
 
+  it('lists the queue of the day by ticket and status', async () => {
+    const first = orderSchema.parse((await createOrder(counterOrder())).json())
+    const second = orderSchema.parse((await createOrder(counterOrder())).json())
+    await changeStatus(first.id, 'preparing')
+    await changeStatus(second.id, 'cancelled')
+
+    const today = await app.inject({ method: 'GET', url: '/api/orders' })
+    const queue = await app.inject({
+      method: 'GET',
+      url: '/api/orders?status=received,preparing,ready',
+    })
+    const otherDay = await app.inject({ method: 'GET', url: '/api/orders?date=2026-10-16' })
+    const invalid = await app.inject({ method: 'GET', url: '/api/orders?status=preparing,lost' })
+
+    expect(today.json()).toMatchObject([
+      { ticket: 1, status: 'preparing' },
+      { ticket: 2, status: 'cancelled' },
+    ])
+    expect(queue.json()).toMatchObject([{ id: first.id }])
+    expect(otherDay.json()).toEqual([])
+    expect(invalid.statusCode).toBe(400)
+  })
+
   it('accepts dish and adjustment ids in uppercase', async () => {
     const created = await createOrder(
       counterOrder({

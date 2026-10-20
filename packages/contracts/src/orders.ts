@@ -41,6 +41,15 @@ export const orderSchema = z.object({
   cancelledAt: z.iso.datetime().nullable(),
 })
 
+export const listOrdersQuerySchema = z.object({
+  date: localDateSchema.optional(),
+  status: z
+    .string()
+    .transform((value) => value.split(','))
+    .pipe(z.array(orderStatusSchema))
+    .optional(),
+})
+
 export const createOrderBodySchema = z.object({
   origin: orderOriginSchema,
   customerName: z.string().optional(),
@@ -64,5 +73,6 @@ export const changeOrderStatusBodySchema = z.object({
 export type OrderOrigin = z.infer<typeof orderOriginSchema>
 export type OrderStatus = z.infer<typeof orderStatusSchema>
 export type Order = z.infer<typeof orderSchema>
+export type ListOrdersQuery = z.infer<typeof listOrdersQuerySchema>
 export type CreateOrderBody = z.infer<typeof createOrderBodySchema>
 export type ChangeOrderStatusBody = z.infer<typeof changeOrderStatusBodySchema>
