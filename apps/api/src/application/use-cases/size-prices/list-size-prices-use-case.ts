@@ -8,6 +8,6 @@ export class ListSizePricesUseCase {
   async execute(): Promise<SizePriceOutput[]> {
     const prices = await Promise.all(sizes.map((size) => this.sizePrices.findOpenBySize(size)))
 
-    return prices.flatMap((price) => (price ? [SizePriceOutput.from(price)] : []))
+    return prices.filter((price) => price !== null).map((price) => SizePriceOutput.from(price))
   }
 }
