@@ -1,6 +1,8 @@
 import type {
   FastifyBaseLogger,
   FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
   RawReplyDefaultExpression,
   RawRequestDefaultExpression,
   RawServerDefault,
@@ -15,7 +17,18 @@ export type ZodFastifyInstance = FastifyInstance<
   ZodTypeProvider
 >
 
-type RouteRegistration = (app: ZodFastifyInstance, controller: object, prefix: string) => void
+export type RouteGuard = (
+  request: FastifyRequest,
+  reply: FastifyReply,
+  access: 'user' | 'admin',
+) => Promise<void>
+
+type RouteRegistration = (
+  app: ZodFastifyInstance,
+  controller: object,
+  prefix: string,
+  guard: RouteGuard,
+) => void
 
 const prefixes = new WeakMap<object, string>()
 const routes = new WeakMap<object, RouteRegistration[]>()
@@ -28,7 +41,11 @@ export function defineRoute(prototype: object, registration: RouteRegistration):
   routes.set(prototype, [...(routes.get(prototype) ?? []), registration])
 }
 
-export function registerControllers(app: ZodFastifyInstance, controllers: readonly object[]): void {
+export function registerControllers(
+  app: ZodFastifyInstance,
+  controllers: readonly object[],
+  guard: RouteGuard,
+): void {
   for (const controller of controllers) {
     const prototype: object = Object.getPrototypeOf(controller)
     const prefix = prefixes.get(prototype)
@@ -38,7 +55,7 @@ export function registerControllers(app: ZodFastifyInstance, controllers: readon
     }
 
     for (const register of routes.get(prototype) ?? []) {
-      register(app, controller, prefix)
+      register(app, controller, prefix, guard)
     }
   }
 }

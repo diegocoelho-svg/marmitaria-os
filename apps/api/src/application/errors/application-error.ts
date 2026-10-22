@@ -13,3 +13,7 @@ export abstract class NotFoundError extends ApplicationError {}
 export abstract class ConflictError extends ApplicationError {}
 
 export abstract class BusinessRuleError extends ApplicationError {}
+
+export abstract class UnauthenticatedError extends ApplicationError {}
+
+export abstract class ForbiddenError extends ApplicationError {}

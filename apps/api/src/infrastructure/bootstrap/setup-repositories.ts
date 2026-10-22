@@ -5,8 +5,10 @@ import { PgDailyMenuRepository } from '@/infrastructure/database/postgresql/pg-d
 import { PgDishRepository } from '@/infrastructure/database/postgresql/pg-dish-repository'
 import { PgMenuRepository } from '@/infrastructure/database/postgresql/pg-menu-repository'
 import { PgOrderRepository } from '@/infrastructure/database/postgresql/pg-order-repository'
+import { PgSessionRepository } from '@/infrastructure/database/postgresql/pg-session-repository'
 import { PgSizePriceRepository } from '@/infrastructure/database/postgresql/pg-size-price-repository'
 import { PgTicketCounterRepository } from '@/infrastructure/database/postgresql/pg-ticket-counter-repository'
+import { PgUserRepository } from '@/infrastructure/database/postgresql/pg-user-repository'
 
 export function setupRepositories(db: DrizzleExecutor): Repositories {
   return {
@@ -17,5 +19,7 @@ export function setupRepositories(db: DrizzleExecutor): Repositories {
     dailyMenus: new PgDailyMenuRepository(db),
     orders: new PgOrderRepository(db),
     tickets: new PgTicketCounterRepository(db),
+    users: new PgUserRepository(db),
+    sessions: new PgSessionRepository(db),
   }
 }

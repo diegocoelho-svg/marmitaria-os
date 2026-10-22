@@ -1,6 +1,7 @@
 import { dishSchema, menuSchema, orderSchema, streamEventSchema } from '@marmitaria/contracts'
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
-import { useTestApp } from '@test/integration/test-app'
+import { SESSION_COOKIE } from '@/infrastructure/http/auth/session-cookie'
+import { TEST_PASSWORD, useTestApp } from '@test/integration/test-app'
 
 type Frame = { id: string; event: string; data: string }
 
@@ -8,15 +9,21 @@ const field = (block: string, name: string) =>
   new RegExp(`^${name}: (.*)$`, 'm').exec(block)?.[1] ?? ''
 
 describe('/api/events', () => {
-  const { app, clock } = useTestApp()
+  const { app, inject, clock, sessionCookie } = useTestApp()
   const streams: Array<() => void> = []
   let baseUrl: string
   let frango: string
 
-  const openStream = async (lastEventId?: string) => {
+  const openStream = async (lastEventId?: string, cookie = sessionCookie('staff')) => {
     const abort = new AbortController()
+    const headers = new Headers({ cookie })
+
+    if (lastEventId) {
+      headers.set('last-event-id', lastEventId)
+    }
+
     const response = await fetch(`${baseUrl}/api/events`, {
-      headers: new Headers(lastEventId ? [['last-event-id', lastEventId]] : []),
+      headers,
       signal: abort.signal,
     })
     const reader = response.body?.getReader()
@@ -59,7 +66,7 @@ describe('/api/events', () => {
   }
 
   const post = async (url: string, payload: object) =>
-    (await app.inject({ method: 'POST', url, payload })).json()
+    (await inject({ method: 'POST', url, payload })).json()
 
   const createOrder = async () =>
     orderSchema.parse(
@@ -76,7 +83,7 @@ describe('/api/events', () => {
   beforeEach(async () => {
     clock.set('2026-10-17T15:00:00Z')
     frango = dishSchema.parse(await post('/api/dishes', { name: 'Frango grelhado' })).id
-    await app.inject({
+    await inject({
       method: 'PUT',
       url: '/api/size-prices/medium',
       payload: { priceCents: 2500 },
@@ -84,7 +91,7 @@ describe('/api/events', () => {
     const menu = menuSchema.parse(
       await post('/api/menus', { name: 'Cardápio A', dishIds: [frango] }),
     )
-    await app.inject({
+    await inject({
       method: 'PUT',
       url: '/api/daily-menus/2026-10-17',
       payload: { menuId: menu.id },
@@ -121,7 +128,7 @@ describe('/api/events', () => {
     first.close()
 
     const order = await createOrder()
-    await app.inject({
+    await inject({
       method: 'PATCH',
       url: `/api/orders/${order.id}/status`,
       payload: { status: 'preparing' },
@@ -141,11 +148,34 @@ describe('/api/events', () => {
   })
 
   it('answers HEAD with the stream headers without opening a stream', async () => {
-    const response = await app.inject({ method: 'HEAD', url: '/api/events' })
+    const response = await inject({ method: 'HEAD', url: '/api/events' })
 
     expect(response.statusCode).toBe(200)
     expect(response.headers['content-type']).toBe('text/event-stream; charset=utf-8')
     expect(response.body).toBe('')
+  })
+
+  it('extends the session cookie of a screen that reconnects on a later day', async () => {
+    const login = await app.inject({
+      method: 'POST',
+      url: '/api/auth/login',
+      payload: { username: 'staff', password: TEST_PASSWORD },
+    })
+    const token = login.cookies.find(({ name }) => name === SESSION_COOKIE)?.value
+
+    clock.set('2026-10-20T08:00:00Z')
+    const stream = await openStream(undefined, `${SESSION_COOKIE}=${token}`)
+
+    expect(stream.response.headers.get('set-cookie')).toContain(
+      'Expires=Thu, 19 Nov 2026 08:00:00 GMT',
+    )
+  })
+
+  it('refuses a screen without a session', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/events' })
+
+    expect(response.statusCode).toBe(401)
+    expect(response.json()).toMatchObject({ code: 'auth.unauthenticated' })
   })
 
   it('ends the open streams when the server closes', async () => {
