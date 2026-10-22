@@ -30,9 +30,9 @@ Decisões de arquitetura do marmitaria-os. Formato: [`0000-template.md`](./0000-
 | [0024](./0024-casos-de-uso-e-camada-http.md) | Casos de uso, camada HTTP e erros da API (ajusta 0023) | Aceito |
 | [0025](./0025-pedidos-e-senha-diaria.md) | Pedidos e senha diária sem buracos | Aceito |
 | [0026](./0026-fila-do-dia-e-stream-de-eventos.md) | Fila do dia e stream de eventos com reenvio | Aceito |
+| [0027](./0027-autenticacao.md) | Autenticação por usuário e senha com sessão em cookie | Aceito |
 
 ## Em aberto
 
-- Autenticação da API e das telas — será discutida numa decisão própria.
 - Forma de pagamento no pedido (Pix/dinheiro/cartão) para o dashboard — validar com o dono.
 - Onde rodar a produção: servidor na loja (funciona sem internet) ou VPS — ver 0017.

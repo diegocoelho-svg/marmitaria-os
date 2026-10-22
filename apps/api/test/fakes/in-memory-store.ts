@@ -30,6 +30,10 @@ export class InMemoryStore<T extends { id: string }> {
     this.records.set(entity.id, this.copy(entity))
   }
 
+  remove(id: string): void {
+    this.records.delete(id)
+  }
+
   replace(entity: T): void {
     if (!this.records.has(entity.id)) {
       throw new Error(`Record ${entity.id} does not exist`)

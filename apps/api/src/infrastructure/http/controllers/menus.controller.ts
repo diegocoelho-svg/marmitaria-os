@@ -43,19 +43,19 @@ export class MenusController {
     return this.getMenu.execute(request.params)
   }
 
-  @Route('POST', '/', createSchema)
+  @Route('POST', '/', createSchema, { access: 'admin' })
   async create(request: RouteRequest<typeof createSchema>, reply: RouteReply<typeof createSchema>) {
     reply.status(201)
 
     return this.createMenu.execute(request.body)
   }
 
-  @Route('PATCH', '/:id', updateSchema)
+  @Route('PATCH', '/:id', updateSchema, { access: 'admin' })
   async update(request: RouteRequest<typeof updateSchema>) {
     return this.updateMenu.execute({ ...request.body, id: request.params.id })
   }
 
-  @Route('POST', '/:id/archive', archiveSchema)
+  @Route('POST', '/:id/archive', archiveSchema, { access: 'admin' })
   async archive(request: RouteRequest<typeof archiveSchema>) {
     return this.archiveMenu.execute(request.params)
   }

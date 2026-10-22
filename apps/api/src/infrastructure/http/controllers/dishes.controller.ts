@@ -40,14 +40,14 @@ export class DishesController {
     return this.getDish.execute(request.params)
   }
 
-  @Route('POST', '/', createSchema)
+  @Route('POST', '/', createSchema, { access: 'admin' })
   async create(request: RouteRequest<typeof createSchema>, reply: RouteReply<typeof createSchema>) {
     reply.status(201)
 
     return this.createDish.execute(request.body)
   }
 
-  @Route('PATCH', '/:id', updateSchema)
+  @Route('PATCH', '/:id', updateSchema, { access: 'admin' })
   async update(request: RouteRequest<typeof updateSchema>) {
     return this.updateDish.execute({ ...request.body, id: request.params.id })
   }

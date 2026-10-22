@@ -32,14 +32,14 @@ export class AdjustmentsController {
     return this.listAdjustments.execute()
   }
 
-  @Route('POST', '/', createSchema)
+  @Route('POST', '/', createSchema, { access: 'admin' })
   async create(request: RouteRequest<typeof createSchema>, reply: RouteReply<typeof createSchema>) {
     reply.status(201)
 
     return this.createAdjustment.execute(request.body)
   }
 
-  @Route('PATCH', '/:id', updateSchema)
+  @Route('PATCH', '/:id', updateSchema, { access: 'admin' })
   async update(request: RouteRequest<typeof updateSchema>) {
     return this.updateAdjustment.execute({ ...request.body, id: request.params.id })
   }

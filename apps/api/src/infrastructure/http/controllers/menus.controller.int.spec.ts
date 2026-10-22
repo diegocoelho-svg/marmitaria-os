@@ -4,18 +4,18 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { useTestApp } from '@test/integration/test-app'
 
 describe('/api/menus', () => {
-  const { app } = useTestApp()
+  const { inject } = useTestApp()
   let frango: string
   let bife: string
 
   const createDish = async (name: string) => {
-    const response = await app.inject({ method: 'POST', url: '/api/dishes', payload: { name } })
+    const response = await inject({ method: 'POST', url: '/api/dishes', payload: { name } })
 
     return dishSchema.parse(response.json()).id
   }
 
   const createMenu = (name: string, dishIds: string[]) =>
-    app.inject({ method: 'POST', url: '/api/menus', payload: { name, dishIds } })
+    inject({ method: 'POST', url: '/api/menus', payload: { name, dishIds } })
 
   beforeEach(async () => {
     frango = await createDish('Frango grelhado')
@@ -26,13 +26,13 @@ describe('/api/menus', () => {
     const created = await createMenu('Cardápio A', [bife, frango])
     const menu = menuSchema.parse(created.json())
 
-    const edited = await app.inject({
+    const edited = await inject({
       method: 'PATCH',
       url: `/api/menus/${menu.id}`,
       payload: { name: 'Cardápio de verão', dishIds: [frango] },
     })
-    const found = await app.inject({ method: 'GET', url: `/api/menus/${menu.id}` })
-    const list = await app.inject({ method: 'GET', url: '/api/menus' })
+    const found = await inject({ method: 'GET', url: `/api/menus/${menu.id}` })
+    const list = await inject({ method: 'GET', url: '/api/menus' })
 
     expect(created.statusCode).toBe(201)
     expect(menu).toMatchObject({ name: 'Cardápio A', dishIds: [bife, frango], archivedAt: null })
@@ -51,10 +51,10 @@ describe('/api/menus', () => {
   it('archives a menu, hides it from the list and frees its name', async () => {
     const menu = menuSchema.parse((await createMenu('Cardápio A', [frango])).json())
 
-    const archived = await app.inject({ method: 'POST', url: `/api/menus/${menu.id}/archive` })
-    const list = await app.inject({ method: 'GET', url: '/api/menus' })
+    const archived = await inject({ method: 'POST', url: `/api/menus/${menu.id}/archive` })
+    const list = await inject({ method: 'GET', url: '/api/menus' })
     const reused = await createMenu('Cardápio A', [bife])
-    const edit = await app.inject({
+    const edit = await inject({
       method: 'PATCH',
       url: `/api/menus/${menu.id}`,
       payload: { name: 'Outro' },
@@ -72,7 +72,7 @@ describe('/api/menus', () => {
 
     const duplicate = await createMenu('cardápio a', [bife])
     const unknownDish = await createMenu('Cardápio B', [randomUUID()])
-    const missing = await app.inject({ method: 'GET', url: `/api/menus/${randomUUID()}` })
+    const missing = await inject({ method: 'GET', url: `/api/menus/${randomUUID()}` })
 
     expect(duplicate.statusCode).toBe(409)
     expect(duplicate.json()).toMatchObject({ code: 'menu.name_taken' })

@@ -1,6 +1,8 @@
 import type { Clock } from '@/application/ports/clock'
 import type { ApplicationEvent, EventBus } from '@/application/ports/event-bus'
 import type { IdGenerator } from '@/application/ports/id-generator'
+import type { PasswordHasher } from '@/application/ports/password-hasher'
+import type { IssuedToken, SessionTokens } from '@/application/ports/session-tokens'
 import type { Repositories, UnitOfWork } from '@/application/ports/unit-of-work'
 import type { FakeRepositories } from '@test/fakes/fake-repositories'
 
@@ -31,6 +33,31 @@ export class RecordingEventBus implements EventBus {
 
   async publish(events: readonly ApplicationEvent[]): Promise<void> {
     this.published.push(...events)
+  }
+}
+
+export class FakePasswordHasher implements PasswordHasher {
+  async hash(password: string): Promise<string> {
+    return `hashed:${password}`
+  }
+
+  async verify(password: string, hash: string): Promise<boolean> {
+    return hash === `hashed:${password}`
+  }
+}
+
+export class SequentialSessionTokens implements SessionTokens {
+  private counter = 0
+
+  issue(): IssuedToken {
+    this.counter += 1
+    const token = `token-${this.counter}`
+
+    return { token, id: this.idOf(token) }
+  }
+
+  idOf(token: string): string {
+    return `id:${token}`
   }
 }
 

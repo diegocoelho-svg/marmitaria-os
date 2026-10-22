@@ -4,7 +4,12 @@ import { buildApp } from '@/infrastructure/http/app'
 import { HealthController } from '@/infrastructure/http/controllers/health.controller'
 
 describe('GET /api/health', () => {
-  const app = buildApp({ controllers: [new HealthController()] })
+  const app = buildApp({
+    controllers: [new HealthController()],
+    guard: async () => {
+      throw new Error('The health check must stay public')
+    },
+  })
 
   afterAll(() => app.close())
 

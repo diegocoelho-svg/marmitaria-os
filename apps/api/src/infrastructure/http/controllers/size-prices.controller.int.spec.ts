@@ -3,18 +3,18 @@ import { PgSizePriceRepository } from '@/infrastructure/database/postgresql/pg-s
 import { useTestApp } from '@test/integration/test-app'
 
 describe('/api/size-prices', () => {
-  const { app, db, clock } = useTestApp()
+  const { inject, db, clock } = useTestApp()
   const sizePrices = new PgSizePriceRepository(db)
 
   const change = (size: string, priceCents: number) =>
-    app.inject({ method: 'PUT', url: `/api/size-prices/${size}`, payload: { priceCents } })
+    inject({ method: 'PUT', url: `/api/size-prices/${size}`, payload: { priceCents } })
 
   it('lists the current price of each priced size', async () => {
     clock.set('2026-10-01T12:00:00Z')
     await change('medium', 2000)
     await change('large', 2500)
 
-    const response = await app.inject({ method: 'GET', url: '/api/size-prices' })
+    const response = await inject({ method: 'GET', url: '/api/size-prices' })
 
     expect(response.json()).toEqual([
       { size: 'medium', priceCents: 2000, validFrom: '2026-10-01T12:00:00.000Z' },

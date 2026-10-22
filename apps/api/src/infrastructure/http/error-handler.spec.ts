@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
+import { AccessDeniedError } from '@/application/errors/access-denied.error'
 import { DishNotFoundError } from '@/application/errors/dish-not-found.error'
 import { DishUnavailableError } from '@/application/errors/dish-unavailable.error'
+import { InvalidCredentialsError } from '@/application/errors/invalid-credentials.error'
 import { MenuNameTakenError } from '@/application/errors/menu-name-taken.error'
 import { MenuEmptyError } from '@/domain/errors/menu-empty.error'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
@@ -8,6 +10,8 @@ import { toHttpError } from '@/infrastructure/http/error-handler'
 
 describe('toHttpError', () => {
   it.each([
+    [new InvalidCredentialsError(), 401, 'auth.invalid_credentials'],
+    [new AccessDeniedError(), 403, 'auth.forbidden'],
     [new DishNotFoundError('frango'), 404, 'dish.not_found'],
     [new MenuNameTakenError('Cardápio A'), 409, 'menu.name_taken'],
     [new StaleWriteError('Order', 'order-1'), 409, 'stale_write'],

@@ -4,16 +4,16 @@ import { describe, expect, it } from 'vitest'
 import { useTestApp } from '@test/integration/test-app'
 
 describe('/api/dishes', () => {
-  const { app } = useTestApp()
+  const { inject } = useTestApp()
 
   const create = async (payload: object) => {
-    const response = await app.inject({ method: 'POST', url: '/api/dishes', payload })
+    const response = await inject({ method: 'POST', url: '/api/dishes', payload })
 
     return dishSchema.parse(response.json())
   }
 
   it('creates, reads and lists dishes', async () => {
-    const response = await app.inject({
+    const response = await inject({
       method: 'POST',
       url: '/api/dishes',
       payload: { name: 'Frango grelhado', description: 'Com legumes' },
@@ -28,17 +28,17 @@ describe('/api/dishes', () => {
       active: true,
     })
 
-    const found = await app.inject({ method: 'GET', url: `/api/dishes/${frango.id}` })
+    const found = await inject({ method: 'GET', url: `/api/dishes/${frango.id}` })
     expect(found.json()).toEqual(frango)
 
-    const list = await app.inject({ method: 'GET', url: '/api/dishes' })
+    const list = await inject({ method: 'GET', url: '/api/dishes' })
     expect(list.json()).toMatchObject([{ name: 'Bife acebolado' }, { name: 'Frango grelhado' }])
   })
 
   it('finds a dish by its id in uppercase', async () => {
     const frango = await create({ name: 'Frango grelhado' })
 
-    const response = await app.inject({
+    const response = await inject({
       method: 'GET',
       url: `/api/dishes/${frango.id.toUpperCase()}`,
     })
@@ -50,7 +50,7 @@ describe('/api/dishes', () => {
   it('updates only the informed fields', async () => {
     const frango = await create({ name: 'Frango grelhado', description: 'Com legumes' })
 
-    const response = await app.inject({
+    const response = await inject({
       method: 'PATCH',
       url: `/api/dishes/${frango.id}`,
       payload: { description: null, active: false },
@@ -61,9 +61,9 @@ describe('/api/dishes', () => {
   })
 
   it('answers domain, lookup and format errors with their codes', async () => {
-    const invalid = await app.inject({ method: 'POST', url: '/api/dishes', payload: { name: ' ' } })
-    const missing = await app.inject({ method: 'GET', url: `/api/dishes/${randomUUID()}` })
-    const malformed = await app.inject({ method: 'GET', url: '/api/dishes/frango' })
+    const invalid = await inject({ method: 'POST', url: '/api/dishes', payload: { name: ' ' } })
+    const missing = await inject({ method: 'GET', url: `/api/dishes/${randomUUID()}` })
+    const malformed = await inject({ method: 'GET', url: '/api/dishes/frango' })
 
     expect(invalid.statusCode).toBe(422)
     expect(invalid.json()).toMatchObject({ code: 'dish.invalid_name' })

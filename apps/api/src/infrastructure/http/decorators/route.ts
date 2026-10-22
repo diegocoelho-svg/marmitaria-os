@@ -13,6 +13,12 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod'
 import type { z } from 'zod'
 import { defineRoute } from '@/infrastructure/http/decorators/route-registry'
 
+export type RouteAccess = 'public' | 'user' | 'admin'
+
+export type RouteOptions = {
+  access?: RouteAccess
+}
+
 export type RouteSchema = {
   params?: z.ZodType
   querystring?: z.ZodType
@@ -53,7 +59,12 @@ export type RouteHandler<S extends RouteSchema> = (
   reply: RouteReply<S>,
 ) => ReturnType<FastifyRouteHandler<S>>
 
-export function Route<S extends RouteSchema>(method: HTTPMethods, path: string, schema: S) {
+export function Route<S extends RouteSchema>(
+  method: HTTPMethods,
+  path: string,
+  schema: S,
+  { access = 'user' }: RouteOptions = {},
+) {
   return (
     prototype: object,
     name: string,
@@ -65,11 +76,12 @@ export function Route<S extends RouteSchema>(method: HTTPMethods, path: string, 
       throw new Error(`@Route on ${name} must decorate a method`)
     }
 
-    defineRoute(prototype, (app, controller, prefix) => {
+    defineRoute(prototype, (app, controller, prefix, guard) => {
       app.route({
         method,
         url: path === '/' ? prefix : `${prefix}${path}`,
         schema,
+        onRequest: access === 'public' ? [] : [(request, reply) => guard(request, reply, access)],
         handler: (request, reply) => handler.call(controller, request, reply),
       })
     })
