@@ -1,6 +1,6 @@
 import { SizeInvalidError } from '@/domain/errors/size-invalid.error'
 
-export const sizes = ['small', 'medium', 'large'] as const
+export const sizes: readonly ['small', 'medium', 'large'] = ['small', 'medium', 'large']
 
 export type Size = (typeof sizes)[number]
 

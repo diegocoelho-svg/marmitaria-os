@@ -1,4 +1,5 @@
-export const orderStatuses = ['received', 'preparing', 'ready', 'delivered', 'cancelled'] as const
+export const orderStatuses: readonly ['received', 'preparing', 'ready', 'delivered', 'cancelled'] =
+  ['received', 'preparing', 'ready', 'delivered', 'cancelled']
 
 export type OrderStatus = (typeof orderStatuses)[number]
 
