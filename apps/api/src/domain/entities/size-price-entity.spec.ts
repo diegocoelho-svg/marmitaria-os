@@ -4,7 +4,6 @@ import { SizePriceAlreadyClosedError } from '@/domain/errors/size-price-already-
 import { SizePriceInvalidPeriodError } from '@/domain/errors/size-price-invalid-period.error'
 import { SizePriceZeroPriceError } from '@/domain/errors/size-price-zero-price.error'
 import { SizePriceEntity } from '@/domain/entities/size-price-entity'
-import type { Size } from '@/domain/value-objects/size'
 import { MoneyVO } from '@/domain/value-objects/money-vo'
 
 const validFrom = new Date('2026-10-01T12:00:00Z')
@@ -36,7 +35,7 @@ describe('SizePriceEntity', () => {
     expect(() =>
       SizePriceEntity.restore({
         id: 'price-1',
-        size: 'huge' as Size,
+        size: 'huge',
         price: MoneyVO.fromCents(2000),
         validFrom,
         validTo: null,

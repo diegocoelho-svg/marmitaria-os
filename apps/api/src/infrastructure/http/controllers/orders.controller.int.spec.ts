@@ -11,21 +11,21 @@ import type { ApplicationEvent } from '@/application/ports/event-bus'
 import { useTestApp } from '@test/integration/test-app'
 
 describe('/api/orders', () => {
-  const { app, clock, eventBus } = useTestApp()
+  const { inject, clock, eventBus } = useTestApp()
   let frango: string
   let semFarofa: string
 
   const post = async (url: string, payload: object) => {
-    const response = await app.inject({ method: 'POST', url, payload })
+    const response = await inject({ method: 'POST', url, payload })
 
     return response.json()
   }
 
   const createOrder = (payload: CreateOrderBody) =>
-    app.inject({ method: 'POST', url: '/api/orders', payload })
+    inject({ method: 'POST', url: '/api/orders', payload })
 
   const changeStatus = (id: string, status: string) =>
-    app.inject({ method: 'PATCH', url: `/api/orders/${id}/status`, payload: { status } })
+    inject({ method: 'PATCH', url: `/api/orders/${id}/status`, payload: { status } })
 
   const counterOrder = (overrides: Partial<CreateOrderBody> = {}): CreateOrderBody => ({
     origin: 'counter',
@@ -37,7 +37,7 @@ describe('/api/orders', () => {
     clock.set('2026-10-17T15:00:00Z')
     frango = dishSchema.parse(await post('/api/dishes', { name: 'Frango grelhado' })).id
     semFarofa = adjustmentSchema.parse(await post('/api/adjustments', { label: 'Sem farofa' })).id
-    await app.inject({
+    await inject({
       method: 'PUT',
       url: '/api/size-prices/medium',
       payload: { priceCents: 2500 },
@@ -45,7 +45,7 @@ describe('/api/orders', () => {
     const menu = menuSchema.parse(
       await post('/api/menus', { name: 'Cardápio A', dishIds: [frango] }),
     )
-    await app.inject({
+    await inject({
       method: 'PUT',
       url: '/api/daily-menus/2026-10-17',
       payload: { menuId: menu.id },
@@ -79,7 +79,7 @@ describe('/api/orders', () => {
     await changeStatus(order.id, 'ready')
     clock.set('2026-10-17T15:25:00Z')
     const delivered = await changeStatus(order.id, 'delivered')
-    const found = await app.inject({ method: 'GET', url: `/api/orders/${order.id}` })
+    const found = await inject({ method: 'GET', url: `/api/orders/${order.id}` })
     unsubscribe()
 
     expect(created.statusCode).toBe(201)
@@ -138,13 +138,13 @@ describe('/api/orders', () => {
     await changeStatus(first.id, 'preparing')
     await changeStatus(second.id, 'cancelled')
 
-    const today = await app.inject({ method: 'GET', url: '/api/orders' })
-    const queue = await app.inject({
+    const today = await inject({ method: 'GET', url: '/api/orders' })
+    const queue = await inject({
       method: 'GET',
       url: '/api/orders?status=received,preparing,ready',
     })
-    const otherDay = await app.inject({ method: 'GET', url: '/api/orders?date=2026-10-16' })
-    const invalid = await app.inject({ method: 'GET', url: '/api/orders?status=preparing,lost' })
+    const otherDay = await inject({ method: 'GET', url: '/api/orders?date=2026-10-16' })
+    const invalid = await inject({ method: 'GET', url: '/api/orders?status=preparing,lost' })
 
     expect(today.json()).toMatchObject([
       { ticket: 1, status: 'preparing' },
@@ -180,7 +180,7 @@ describe('/api/orders', () => {
 
     const invalidTransition = await changeStatus(order.id, 'delivered')
     const unknownStatus = await changeStatus(order.id, 'received')
-    const missing = await app.inject({ method: 'GET', url: `/api/orders/${randomUUID()}` })
+    const missing = await inject({ method: 'GET', url: `/api/orders/${randomUUID()}` })
     const unknownDish = await createOrder(
       counterOrder({ items: [{ dishId: randomUUID(), size: 'medium', quantity: 1 }] }),
     )

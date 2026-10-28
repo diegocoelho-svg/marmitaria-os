@@ -18,11 +18,15 @@ import type { TicketNumberVO } from '@/domain/value-objects/ticket-number-vo'
 
 const CUSTOMER_NAME_MAX_LENGTH = 60
 
-export const orderOrigins = ['counter', 'whatsapp'] as const
+export const orderOrigins: readonly ['counter', 'whatsapp'] = ['counter', 'whatsapp']
 
 export type OrderOrigin = (typeof orderOrigins)[number]
 
-const progression = ['startedAt', 'readyAt', 'deliveredAt'] as const
+const progression: readonly ['startedAt', 'readyAt', 'deliveredAt'] = [
+  'startedAt',
+  'readyAt',
+  'deliveredAt',
+]
 
 type Milestone = (typeof progression)[number] | 'cancelledAt'
 
@@ -59,8 +63,9 @@ export type CreateOrderInput = {
   now: Date
 }
 
-export type RestoreOrderInput = Omit<CreateOrderInput, 'now'> & {
-  status: OrderStatus
+export type RestoreOrderInput = Omit<CreateOrderInput, 'now' | 'origin'> & {
+  origin: string
+  status: string
   createdAt: Date
   startedAt?: Date | undefined
   readyAt?: Date | undefined

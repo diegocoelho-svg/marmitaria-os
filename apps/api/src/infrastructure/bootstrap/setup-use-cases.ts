@@ -1,10 +1,15 @@
 import type { Clock } from '@/application/ports/clock'
 import type { EventBus } from '@/application/ports/event-bus'
 import type { IdGenerator } from '@/application/ports/id-generator'
+import type { PasswordHasher } from '@/application/ports/password-hasher'
+import type { SessionTokens } from '@/application/ports/session-tokens'
 import type { Repositories, UnitOfWork } from '@/application/ports/unit-of-work'
 import { CreateAdjustmentUseCase } from '@/application/use-cases/adjustments/create-adjustment-use-case'
 import { ListAdjustmentsUseCase } from '@/application/use-cases/adjustments/list-adjustments-use-case'
 import { UpdateAdjustmentUseCase } from '@/application/use-cases/adjustments/update-adjustment-use-case'
+import { AuthenticateUseCase } from '@/application/use-cases/auth/authenticate-use-case'
+import { LoginUseCase } from '@/application/use-cases/auth/login-use-case'
+import { LogoutUseCase } from '@/application/use-cases/auth/logout-use-case'
 import { ApplyMenuUseCase } from '@/application/use-cases/daily-menus/apply-menu-use-case'
 import { GetDailyMenuUseCase } from '@/application/use-cases/daily-menus/get-daily-menu-use-case'
 import { GetTodayDailyMenuUseCase } from '@/application/use-cases/daily-menus/get-today-daily-menu-use-case'
@@ -25,6 +30,7 @@ import { GetOrderUseCase } from '@/application/use-cases/orders/get-order-use-ca
 import { ListOrdersUseCase } from '@/application/use-cases/orders/list-orders-use-case'
 import { ChangeSizePriceUseCase } from '@/application/use-cases/size-prices/change-size-price-use-case'
 import { ListSizePricesUseCase } from '@/application/use-cases/size-prices/list-size-prices-use-case'
+import { CreateUserUseCase } from '@/application/use-cases/users/create-user-use-case'
 
 export type UseCaseDependencies = {
   repositories: Repositories
@@ -32,6 +38,8 @@ export type UseCaseDependencies = {
   clock: Clock
   ids: IdGenerator
   eventBus: EventBus
+  passwords: PasswordHasher
+  tokens: SessionTokens
 }
 
 export function setupUseCases({
@@ -40,10 +48,21 @@ export function setupUseCases({
   clock,
   ids,
   eventBus,
+  passwords,
+  tokens,
 }: UseCaseDependencies) {
-  const { dishes, adjustments, sizePrices, menus, dailyMenus, orders } = repositories
+  const { dishes, adjustments, sizePrices, menus, dailyMenus, orders, users, sessions } =
+    repositories
 
   return {
+    auth: {
+      login: new LoginUseCase(users, sessions, passwords, tokens, clock),
+      logout: new LogoutUseCase(sessions, tokens),
+      authenticate: new AuthenticateUseCase(sessions, users, tokens, clock),
+    },
+    users: {
+      create: new CreateUserUseCase(users, passwords, ids),
+    },
     dishes: {
       list: new ListDishesUseCase(dishes),
       get: new GetDishUseCase(dishes),

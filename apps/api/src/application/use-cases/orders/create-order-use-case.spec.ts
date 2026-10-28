@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import type { CreateOrderInput } from '@/application/dtos/orders/create-order-input'
 import { AdjustmentUnavailableError } from '@/application/errors/adjustment-unavailable.error'
 import { OrderDishUnavailableError } from '@/application/errors/order-dish-unavailable.error'
 import { OrderSizeNotPricedError } from '@/application/errors/order-size-not-priced.error'
@@ -123,9 +124,9 @@ describe('CreateOrderUseCase', () => {
   })
 
   it('numbers the tickets of the business date in sequence', async () => {
-    const order = {
-      origin: 'whatsapp' as const,
-      items: [{ dishId: 'frango', size: 'medium' as const, quantity: 1 }],
+    const order: CreateOrderInput = {
+      origin: 'whatsapp',
+      items: [{ dishId: 'frango', size: 'medium', quantity: 1 }],
     }
 
     const first = await useCase.execute(order)
@@ -135,9 +136,9 @@ describe('CreateOrderUseCase', () => {
   })
 
   it('gives the ticket back when the order is rejected', async () => {
-    const order = {
-      origin: 'counter' as const,
-      items: [{ dishId: 'frango', size: 'medium' as const, quantity: 1 }],
+    const order: CreateOrderInput = {
+      origin: 'counter',
+      items: [{ dishId: 'frango', size: 'medium', quantity: 1 }],
     }
 
     await expect(

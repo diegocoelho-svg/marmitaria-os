@@ -175,13 +175,19 @@ imports com o alias `@/`, testes `*.spec.ts` ao lado do código e testes de inte
 Todas as rotas ficam sob `/api` e validam entrada e saída com os contratos de
 `packages/contracts`. Erros respondem `{ code, message }`.
 
+O acesso é por usuário e senha, com a sessão num cookie `HttpOnly`
+([0027](./docs/adr/0027-autenticacao.md)). Só `GET /health`, `POST /auth/login` e
+`POST /auth/logout` são públicas; o resto responde 401 sem sessão. As rotas marcadas com
+**admin** exigem o papel de administrador e respondem 403 para a equipe.
+
 | Recurso | Rotas |
 |---|---|
-| Pratos | `GET/POST /dishes`, `GET/PATCH /dishes/:id` |
-| Ajustes rápidos | `GET/POST /adjustments`, `PATCH /adjustments/:id` |
-| Preços por tamanho | `GET /size-prices`, `PUT /size-prices/:size` |
-| Cardápios | `GET/POST /menus`, `GET/PATCH /menus/:id`, `POST /menus/:id/archive` |
-| Cardápio do dia | `GET /daily-menus?from&to`, `GET /daily-menus/today`, `GET/PUT /daily-menus/:date`, `PUT /daily-menus/:date/dishes` |
+| Autenticação | `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` |
+| Pratos | `GET /dishes`, `GET /dishes/:id`; **admin:** `POST /dishes`, `PATCH /dishes/:id` |
+| Ajustes rápidos | `GET /adjustments`; **admin:** `POST /adjustments`, `PATCH /adjustments/:id` |
+| Preços por tamanho | `GET /size-prices`; **admin:** `PUT /size-prices/:size` |
+| Cardápios | `GET /menus`, `GET /menus/:id`; **admin:** `POST /menus`, `PATCH /menus/:id`, `POST /menus/:id/archive` |
+| Cardápio do dia | `GET /daily-menus?from&to`, `GET /daily-menus/today`, `GET /daily-menus/:date`; **admin:** `PUT /daily-menus/:date`, `PUT /daily-menus/:date/dishes` |
 | Pedidos | `GET /orders?date&status`, `POST /orders`, `GET /orders/:id`, `PATCH /orders/:id/status` |
 | Eventos (SSE) | `GET /events` |
 | Saúde | `GET /health` |
@@ -261,11 +267,13 @@ pnpm install
 cp apps/api/.env.example apps/api/.env
 docker compose up --wait postgres
 pnpm --filter @marmitaria/api db:migrate
+pnpm --filter @marmitaria/api user:create-admin --username <usuário> --name "<nome>" --password <senha>
 pnpm dev
 ```
 
 A API sobe em `http://localhost:3333` e o web em `http://localhost:5173`, que repassa
-`/api` para a API.
+`/api` para a API. O comando `user:create-admin` cria o primeiro administrador; os outros
+usuários vêm depois pela própria API.
 
 Para subir a stack completa como em produção (Caddy, web, API e Postgres):
 
@@ -276,7 +284,17 @@ docker compose up -d --build
 
 O serviço `migrate` aplica as migrations antes de a API subir. Tudo fica disponível em
 `http://localhost`. Com um domínio em `SITE_ADDRESS`, o Caddy emite o
-certificado HTTPS automaticamente.
+certificado HTTPS automaticamente. O primeiro administrador é criado com:
+
+```bash
+docker compose run --rm api node dist/create-admin.js --username <usuário> --name "<nome>" --password <senha>
+```
+
+O cookie de sessão só trafega por HTTPS (ou em `localhost`). Para testar de outro aparelho
+pela rede local sem HTTPS, use `SESSION_COOKIE_SECURE=false` no `.env`. Em produção, informe
+o endereço público em `PUBLIC_ORIGIN` (por exemplo, `https://marmitaria.exemplo.com.br`):
+escritas que trazem o cabeçalho `Origin` precisam vir exatamente dessa origem, com esquema e
+porta. Requisições sem `Origin`, como as do `curl`, continuam exigindo sessão.
 
 | Comando | O que faz |
 |---|---|
@@ -287,4 +305,5 @@ certificado HTTPS automaticamente.
 | `pnpm test:integration` | Testes de integração da API (Postgres em `TEST_DATABASE_URL`) |
 | `pnpm --filter @marmitaria/api db:generate` | Gera uma migration a partir do schema Drizzle |
 | `pnpm --filter @marmitaria/api db:migrate` | Aplica as migrations em `DATABASE_URL` |
+| `pnpm --filter @marmitaria/api user:create-admin` | Cria um administrador (`--username`, `--name`, `--password`) |
 | `pnpm build` | Build de todos os pacotes |

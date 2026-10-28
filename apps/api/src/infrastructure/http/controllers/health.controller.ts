@@ -6,8 +6,8 @@ const healthSchema = { response: { 200: healthResponseSchema } }
 
 @Controller('/health')
 export class HealthController {
-  @Route('GET', '/', healthSchema)
-  async check() {
-    return { status: 'ok' as const }
+  @Route('GET', '/', healthSchema, { access: 'public' })
+  async check(): Promise<{ status: 'ok' }> {
+    return { status: 'ok' }
   }
 }

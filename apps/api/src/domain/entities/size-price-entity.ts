@@ -20,7 +20,8 @@ export type CreateSizePriceInput = {
   validFrom: Date
 }
 
-export type RestoreSizePriceInput = CreateSizePriceInput & {
+export type RestoreSizePriceInput = Omit<CreateSizePriceInput, 'size'> & {
+  size: string
   validTo: Date | null
 }
 

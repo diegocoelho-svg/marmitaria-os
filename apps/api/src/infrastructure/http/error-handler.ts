@@ -5,7 +5,9 @@ import {
   ApplicationError,
   BusinessRuleError,
   ConflictError,
+  ForbiddenError,
   NotFoundError,
+  UnauthenticatedError,
 } from '@/application/errors/application-error'
 import { DomainError } from '@/domain/errors/domain-error'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
@@ -42,6 +44,14 @@ export function setupErrorHandling(app: FastifyInstance): void {
 export function toHttpError(error: Error): HttpError {
   if (hasZodFastifySchemaValidationErrors(error)) {
     return { statusCode: 400, body: { code: 'request.invalid', message: error.message } }
+  }
+
+  if (error instanceof UnauthenticatedError) {
+    return describe(401, error)
+  }
+
+  if (error instanceof ForbiddenError) {
+    return describe(403, error)
   }
 
   if (error instanceof NotFoundError) {

@@ -5,20 +5,20 @@ import type { ApplicationEvent } from '@/application/ports/event-bus'
 import { useTestApp } from '@test/integration/test-app'
 
 describe('/api/daily-menus', () => {
-  const { app, clock, eventBus } = useTestApp()
+  const { inject, clock, eventBus } = useTestApp()
   let frango: string
   let peixe: string
   let cardapioA: string
   let cardapioB: string
 
   const createDish = async (name: string) => {
-    const response = await app.inject({ method: 'POST', url: '/api/dishes', payload: { name } })
+    const response = await inject({ method: 'POST', url: '/api/dishes', payload: { name } })
 
     return dishSchema.parse(response.json()).id
   }
 
   const createMenu = async (name: string, dishIds: string[]) => {
-    const response = await app.inject({
+    const response = await inject({
       method: 'POST',
       url: '/api/menus',
       payload: { name, dishIds },
@@ -28,7 +28,7 @@ describe('/api/daily-menus', () => {
   }
 
   const apply = (date: string, menuId: string) =>
-    app.inject({ method: 'PUT', url: `/api/daily-menus/${date}`, payload: { menuId } })
+    inject({ method: 'PUT', url: `/api/daily-menus/${date}`, payload: { menuId } })
 
   beforeEach(async () => {
     clock.set('2026-10-17T15:00:00Z')
@@ -63,7 +63,7 @@ describe('/api/daily-menus', () => {
   it('adjusts the dishes of the day', async () => {
     await apply('2026-10-20', cardapioA)
 
-    const response = await app.inject({
+    const response = await inject({
       method: 'PUT',
       url: '/api/daily-menus/2026-10-20/dishes',
       payload: { dishIds: [peixe, frango] },
@@ -77,9 +77,9 @@ describe('/api/daily-menus', () => {
     await apply('2026-10-20', cardapioB)
     await apply('2026-10-25', cardapioA)
 
-    const today = await app.inject({ method: 'GET', url: '/api/daily-menus/today' })
-    const byDate = await app.inject({ method: 'GET', url: '/api/daily-menus/2026-10-20' })
-    const period = await app.inject({
+    const today = await inject({ method: 'GET', url: '/api/daily-menus/today' })
+    const byDate = await inject({ method: 'GET', url: '/api/daily-menus/2026-10-20' })
+    const period = await inject({
       method: 'GET',
       url: '/api/daily-menus?from=2026-10-17&to=2026-10-20',
     })
@@ -92,13 +92,13 @@ describe('/api/daily-menus', () => {
   it('answers errors with their codes', async () => {
     const past = await apply('2026-10-16', cardapioA)
     const unknownMenu = await apply('2026-10-20', randomUUID())
-    const missing = await app.inject({ method: 'GET', url: '/api/daily-menus/2026-10-21' })
-    const noToday = await app.inject({ method: 'GET', url: '/api/daily-menus/today' })
-    const badPeriod = await app.inject({
+    const missing = await inject({ method: 'GET', url: '/api/daily-menus/2026-10-21' })
+    const noToday = await inject({ method: 'GET', url: '/api/daily-menus/today' })
+    const badPeriod = await inject({
       method: 'GET',
       url: '/api/daily-menus?from=2026-10-20&to=2026-10-17',
     })
-    const badDate = await app.inject({ method: 'GET', url: '/api/daily-menus/2026-02-30' })
+    const badDate = await inject({ method: 'GET', url: '/api/daily-menus/2026-02-30' })
 
     expect(past.statusCode).toBe(422)
     expect(past.json()).toMatchObject({ code: 'daily_menu.past_date' })

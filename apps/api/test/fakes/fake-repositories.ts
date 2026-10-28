@@ -1,20 +1,25 @@
 import { DailyMenuDateTakenError } from '@/application/errors/daily-menu-date-taken.error'
 import { MenuNameTakenError } from '@/application/errors/menu-name-taken.error'
+import { UsernameTakenError } from '@/application/errors/username-taken.error'
 import type { Repositories } from '@/application/ports/unit-of-work'
 import { AdjustmentEntity } from '@/domain/entities/adjustment-entity'
 import { DailyMenuEntity } from '@/domain/entities/daily-menu-entity'
 import { DishEntity } from '@/domain/entities/dish-entity'
 import { MenuEntity } from '@/domain/entities/menu-entity'
 import { OrderEntity } from '@/domain/entities/order-entity'
+import { SessionEntity } from '@/domain/entities/session-entity'
 import { SizePriceEntity } from '@/domain/entities/size-price-entity'
+import { UserEntity } from '@/domain/entities/user-entity'
 import { StaleWriteError } from '@/domain/errors/stale-write.error'
 import type { AdjustmentRepository } from '@/domain/repositories/adjustment-repository'
 import type { DailyMenuRepository } from '@/domain/repositories/daily-menu-repository'
 import type { DishRepository } from '@/domain/repositories/dish-repository'
 import type { MenuRepository } from '@/domain/repositories/menu-repository'
 import type { OrderRepository } from '@/domain/repositories/order-repository'
+import type { SessionRepository } from '@/domain/repositories/session-repository'
 import type { SizePriceRepository } from '@/domain/repositories/size-price-repository'
 import type { TicketCounterRepository } from '@/domain/repositories/ticket-counter-repository'
+import type { UserRepository } from '@/domain/repositories/user-repository'
 import type { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import type { OrderStatus } from '@/domain/value-objects/order-status'
 import type { Size } from '@/domain/value-objects/size'
@@ -275,6 +280,73 @@ export class FakeTicketCounterRepository implements TicketCounterRepository {
   }
 }
 
+export class FakeUserRepository implements UserRepository {
+  readonly store = new InMemoryStore<UserEntity>((user) =>
+    UserEntity.restore({
+      id: user.id,
+      username: user.username,
+      name: user.name,
+      role: user.role,
+      active: user.active,
+      passwordHash: user.passwordHash,
+    }),
+  )
+
+  async findById(id: string) {
+    return this.store.get(id)
+  }
+
+  async findByUsername(username: string) {
+    return this.store.all().find((user) => user.username === username) ?? null
+  }
+
+  async create(user: UserEntity) {
+    if (await this.findByUsername(user.username)) {
+      throw new UsernameTakenError(user.username)
+    }
+
+    this.store.insert(user)
+  }
+}
+
+export class FakeSessionRepository implements SessionRepository {
+  readonly store = new InMemoryStore<SessionEntity>((session) =>
+    SessionEntity.restore({
+      id: session.id,
+      userId: session.userId,
+      expiresAt: session.expiresAt,
+    }),
+  )
+
+  async findById(id: string) {
+    return this.store.get(id)
+  }
+
+  async create(session: SessionEntity) {
+    this.store.insert(session)
+  }
+
+  async renew(session: SessionEntity, previousExpiry: Date) {
+    if (this.store.get(session.id)?.expiresAt.getTime() !== previousExpiry.getTime()) {
+      return false
+    }
+
+    this.store.replace(session)
+
+    return true
+  }
+
+  async delete(id: string) {
+    this.store.remove(id)
+  }
+
+  async deleteExpired(id: string, now: Date) {
+    if (this.store.get(id)?.isExpiredAt(now)) {
+      this.store.remove(id)
+    }
+  }
+}
+
 export type FakeRepositories = {
   dishes: FakeDishRepository
   adjustments: FakeAdjustmentRepository
@@ -283,6 +355,8 @@ export type FakeRepositories = {
   dailyMenus: FakeDailyMenuRepository
   orders: FakeOrderRepository
   tickets: FakeTicketCounterRepository
+  users: FakeUserRepository
+  sessions: FakeSessionRepository
 }
 
 export function fakeRepositories(): FakeRepositories & Repositories {
@@ -294,5 +368,7 @@ export function fakeRepositories(): FakeRepositories & Repositories {
     dailyMenus: new FakeDailyMenuRepository(),
     orders: new FakeOrderRepository(),
     tickets: new FakeTicketCounterRepository(),
+    users: new FakeUserRepository(),
+    sessions: new FakeSessionRepository(),
   }
 }

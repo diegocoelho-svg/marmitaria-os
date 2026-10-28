@@ -26,7 +26,7 @@ export function useTestDatabase(): DrizzleExecutor {
       TRUNCATE
         order_item_adjustments, order_items, orders,
         daily_menu_dishes, daily_menus, menu_dishes, menus,
-        size_prices, dishes, adjustments, daily_ticket_counters
+        size_prices, dishes, adjustments, daily_ticket_counters, sessions, users
     `)
   })
 

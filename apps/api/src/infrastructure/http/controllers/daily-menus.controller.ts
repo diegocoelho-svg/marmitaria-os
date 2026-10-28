@@ -56,12 +56,12 @@ export class DailyMenusController {
     return this.getDailyMenu.execute(request.params)
   }
 
-  @Route('PUT', '/:date', applyMenuSchema)
+  @Route('PUT', '/:date', applyMenuSchema, { access: 'admin' })
   async apply(request: RouteRequest<typeof applyMenuSchema>) {
     return this.applyMenu.execute({ ...request.body, date: request.params.date })
   }
 
-  @Route('PUT', '/:date/dishes', setDishesSchema)
+  @Route('PUT', '/:date/dishes', setDishesSchema, { access: 'admin' })
   async setDishes(request: RouteRequest<typeof setDishesSchema>) {
     return this.setDailyMenuDishes.execute({ ...request.body, date: request.params.date })
   }

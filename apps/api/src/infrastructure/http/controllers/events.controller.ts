@@ -25,6 +25,12 @@ export class EventsController {
     const lastEventId = request.headers['last-event-id']
 
     reply.hijack()
+    const renewedCookie = reply.getHeader('set-cookie')
+
+    if (renewedCookie !== undefined) {
+      reply.raw.setHeader('set-cookie', renewedCookie)
+    }
+
     reply.raw.writeHead(200, streamHeaders)
     reply.raw.flushHeaders()
 

@@ -6,6 +6,11 @@ const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3333),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   DATABASE_URL: z.url(),
+  SESSION_COOKIE_SECURE: z.stringbool().default(true),
+  PUBLIC_ORIGIN: z
+    .union([z.url(), z.literal('')])
+    .optional()
+    .transform((url) => (url ? new URL(url).origin : undefined)),
 })
 
 export type Env = z.infer<typeof envSchema>

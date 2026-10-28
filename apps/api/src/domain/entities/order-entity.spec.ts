@@ -7,15 +7,10 @@ import { OrderInvalidOriginError } from '@/domain/errors/order-invalid-origin.er
 import { OrderInvalidStatusError } from '@/domain/errors/order-invalid-status.error'
 import { OrderInvalidTransitionError } from '@/domain/errors/order-invalid-transition.error'
 import { OrderTimeWentBackwardsError } from '@/domain/errors/order-time-went-backwards.error'
-import {
-  OrderEntity,
-  type OrderOrigin,
-  type RestoreOrderInput,
-} from '@/domain/entities/order-entity'
+import { OrderEntity, type RestoreOrderInput } from '@/domain/entities/order-entity'
 import { LocalDateVO } from '@/domain/value-objects/local-date-vo'
 import { MoneyVO } from '@/domain/value-objects/money-vo'
 import { OrderItemVO } from '@/domain/value-objects/order-item-vo'
-import type { OrderStatus } from '@/domain/value-objects/order-status'
 import { TicketNumberVO } from '@/domain/value-objects/ticket-number-vo'
 
 const createdAt = new Date('2026-10-10T15:00:00Z')
@@ -47,6 +42,13 @@ function newOrder() {
   order.pullEvents()
   return order
 }
+
+type Step = 'start' | 'markReady' | 'deliver'
+
+type History = Pick<
+  RestoreOrderInput,
+  'status' | 'startedAt' | 'readyAt' | 'deliveredAt' | 'cancelledAt'
+>
 
 const restoreBase = {
   id: 'order-1',
@@ -152,11 +154,11 @@ describe('OrderEntity', () => {
     ])
   })
 
-  it.each([
+  it.each<[Step, Step[]]>([
     ['markReady', []],
     ['deliver', ['start']],
     ['start', ['start']],
-  ] as const)('rejects %s after %j', (action, previous) => {
+  ])('rejects %s after %j', (action, previous) => {
     const order = newOrder()
     for (const step of previous) order[step](at(1))
     order.pullEvents()
@@ -165,7 +167,7 @@ describe('OrderEntity', () => {
     expect(order.pullEvents()).toEqual([])
   })
 
-  it.each([[[]], [['start']], [['start', 'markReady']]] as const)(
+  it.each<[Step[]]>([[[]], [['start']], [['start', 'markReady']]])(
     'can be cancelled after %j',
     (previous) => {
       const order = newOrder()
@@ -282,11 +284,11 @@ describe('OrderEntity', () => {
 
     it('rejects an unknown origin or status', () => {
       expect(() =>
-        OrderEntity.restore({ ...restoreBase, origin: 'phone' as OrderOrigin, status: 'received' }),
+        OrderEntity.restore({ ...restoreBase, origin: 'phone', status: 'received' }),
       ).toThrow(OrderInvalidOriginError)
-      expect(() =>
-        OrderEntity.restore({ ...restoreBase, status: 'archived' as OrderStatus }),
-      ).toThrow(OrderInvalidStatusError)
+      expect(() => OrderEntity.restore({ ...restoreBase, status: 'archived' })).toThrow(
+        OrderInvalidStatusError,
+      )
     })
 
     it('rejects a total beyond the safe integer range', () => {
@@ -299,7 +301,7 @@ describe('OrderEntity', () => {
       ).toThrow(MoneyInvalidAmountError)
     })
 
-    it.each([
+    it.each<[string, History]>([
       ['ready without startedAt', { status: 'ready', readyAt: at(5) }],
       ['preparing with readyAt', { status: 'preparing', startedAt: at(1), readyAt: at(5) }],
       ['received with cancelledAt', { status: 'received', cancelledAt: at(1) }],
@@ -315,7 +317,7 @@ describe('OrderEntity', () => {
       ],
       ['timestamps out of order', { status: 'ready', startedAt: at(10), readyAt: at(5) }],
       ['started before creation', { status: 'preparing', startedAt: at(-1) }],
-    ] as const)('rejects %s', (_, history) => {
+    ])('rejects %s', (_, history) => {
       expect(() => OrderEntity.restore({ ...restoreBase, ...history })).toThrow(
         OrderInconsistentStateError,
       )

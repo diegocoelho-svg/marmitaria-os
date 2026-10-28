@@ -28,7 +28,7 @@ export class SizePricesController {
     return this.listSizePrices.execute()
   }
 
-  @Route('PUT', '/:size', changeSchema)
+  @Route('PUT', '/:size', changeSchema, { access: 'admin' })
   async change(request: RouteRequest<typeof changeSchema>) {
     return this.changeSizePrice.execute({ ...request.body, size: request.params.size })
   }

@@ -4,6 +4,8 @@ import { buildLoggerOptions } from '@/infrastructure/config/logger'
 import { createContainer } from '@/infrastructure/container/container'
 import { InMemoryEventBus } from '@/infrastructure/events/in-memory-event-bus'
 import { buildApp } from '@/infrastructure/http/app'
+import { RandomSessionTokens } from '@/infrastructure/services/random-session-tokens'
+import { ScryptPasswordHasher } from '@/infrastructure/services/scrypt-password-hasher'
 import { SystemClock } from '@/infrastructure/services/system-clock'
 import { UuidGenerator } from '@/infrastructure/services/uuid-generator'
 
@@ -13,12 +15,21 @@ const eventBus = new InMemoryEventBus(({ error, event }) => {
 
 const container = createContainer({
   databaseUrl: env.DATABASE_URL,
-  services: { clock: new SystemClock(), ids: new UuidGenerator(), eventBus },
+  services: {
+    clock: new SystemClock(),
+    ids: new UuidGenerator(),
+    eventBus,
+    passwords: new ScryptPasswordHasher(),
+    tokens: new RandomSessionTokens(),
+  },
+  sessionCookie: { secure: env.SESSION_COOKIE_SECURE },
 })
 
 const app = buildApp({
   logger: buildLoggerOptions({ environment: env.NODE_ENV, level: env.LOG_LEVEL }),
   controllers: container.controllers,
+  guard: container.guard,
+  publicOrigin: env.PUBLIC_ORIGIN,
 })
 
 container.database.pool.on('error', (error) => {
