@@ -47,6 +47,17 @@ describe('PgSessionRepository', () => {
     expect(await repository.findById('digest-1')).toBeNull()
   })
 
+  it('sweeps a session only while it is still expired', async () => {
+    const current = session('digest-1')
+    await repository.create(current)
+
+    await repository.deleteExpired('digest-1', new Date('2026-11-19T11:59:59Z'))
+    expect(await repository.findById('digest-1')).toEqual(current)
+
+    await repository.deleteExpired('digest-1', current.expiresAt)
+    expect(await repository.findById('digest-1')).toBeNull()
+  })
+
   it('drops the sessions of a removed user', async () => {
     await repository.create(session('digest-1'))
     await repository.create(session('digest-2'))

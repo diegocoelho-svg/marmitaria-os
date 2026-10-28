@@ -339,6 +339,12 @@ export class FakeSessionRepository implements SessionRepository {
   async delete(id: string) {
     this.store.remove(id)
   }
+
+  async deleteExpired(id: string, now: Date) {
+    if (this.store.get(id)?.isExpiredAt(now)) {
+      this.store.remove(id)
+    }
+  }
 }
 
 export type FakeRepositories = {

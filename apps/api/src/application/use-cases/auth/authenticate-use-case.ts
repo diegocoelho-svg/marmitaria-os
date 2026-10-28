@@ -24,7 +24,7 @@ export class AuthenticateUseCase {
     }
 
     if (session.isExpiredAt(now)) {
-      await this.sessions.delete(session.id)
+      await this.sessions.deleteExpired(session.id, now)
       throw new SessionInvalidError()
     }
 

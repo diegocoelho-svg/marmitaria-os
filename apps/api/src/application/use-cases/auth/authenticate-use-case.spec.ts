@@ -8,6 +8,21 @@ import { FakeClock, SequentialSessionTokens } from '@test/fakes/fake-services'
 
 const signedInAt = new Date('2026-10-20T12:00:00Z')
 
+class SessionsRenewedRightAfterRead extends FakeSessionRepository {
+  override async findById(id: string) {
+    const found = await super.findById(id)
+    const stored = this.store.get(id)
+
+    if (stored) {
+      const previousExpiry = stored.expiresAt
+      stored.renew(new Date('2026-11-19T11:59:59Z'))
+      await this.renew(stored, previousExpiry)
+    }
+
+    return found
+  }
+}
+
 describe('AuthenticateUseCase', () => {
   let users: FakeUserRepository
   let sessions: FakeSessionRepository
@@ -82,6 +97,21 @@ describe('AuthenticateUseCase', () => {
 
     await expect(useCase.execute({ token: 'token-1' })).rejects.toThrow(SessionInvalidError)
     expect(await sessions.findById('id:token-1')).toBeNull()
+  })
+
+  it('keeps a session that another request renewed right before the sweep', async () => {
+    await addUser(true)
+    const racing = new SessionsRenewedRightAfterRead()
+    await racing.create(
+      SessionEntity.start({ id: 'id:token-1', userId: 'user-1', now: signedInAt }),
+    )
+    clock.set('2026-11-19T12:00:00Z')
+    const late = new AuthenticateUseCase(racing, users, new SequentialSessionTokens(), clock)
+
+    await expect(late.execute({ token: 'token-1' })).rejects.toThrow(SessionInvalidError)
+    expect((await racing.findById('id:token-1'))?.expiresAt).toEqual(
+      new Date('2026-12-19T11:59:59Z'),
+    )
   })
 
   it('refuses the session of an inactive user', async () => {

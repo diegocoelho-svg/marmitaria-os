@@ -5,4 +5,5 @@ export interface SessionRepository {
   create(session: SessionEntity): Promise<void>
   renew(session: SessionEntity, previousExpiry: Date): Promise<boolean>
   delete(id: string): Promise<void>
+  deleteExpired(id: string, now: Date): Promise<void>
 }

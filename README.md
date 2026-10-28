@@ -293,7 +293,8 @@ docker compose run --rm api node dist/create-admin.js --username <usuário> --na
 O cookie de sessão só trafega por HTTPS (ou em `localhost`). Para testar de outro aparelho
 pela rede local sem HTTPS, use `SESSION_COOKIE_SECURE=false` no `.env`. Em produção, informe
 o endereço público em `PUBLIC_ORIGIN` (por exemplo, `https://marmitaria.exemplo.com.br`):
-a API só aceita escritas vindas exatamente dessa origem.
+escritas que trazem o cabeçalho `Origin` precisam vir exatamente dessa origem, com esquema e
+porta. Requisições sem `Origin`, como as do `curl`, continuam exigindo sessão.
 
 | Comando | O que faz |
 |---|---|

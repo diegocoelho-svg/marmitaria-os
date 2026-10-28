@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, lte } from 'drizzle-orm'
 import type { SessionEntity } from '@/domain/entities/session-entity'
 import type { SessionRepository } from '@/domain/repositories/session-repository'
 import type { DrizzleExecutor } from '@/infrastructure/database/postgresql/database'
@@ -30,5 +30,9 @@ export class PgSessionRepository implements SessionRepository {
 
   async delete(id: string): Promise<void> {
     await this.db.delete(sessions).where(eq(sessions.id, id))
+  }
+
+  async deleteExpired(id: string, now: Date): Promise<void> {
+    await this.db.delete(sessions).where(and(eq(sessions.id, id), lte(sessions.expiresAt, now)))
   }
 }
